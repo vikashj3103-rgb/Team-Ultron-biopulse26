@@ -1,74 +1,85 @@
-# ESP32 Smart Glove — Integration Guide
+# ESP32 Smart Glove — HealthConnect Integration Guide
 
-This guide documents how the glove should connect to HealthConnect. It intentionally does not invent pin assignments or firmware protocol details that have not been verified from the final `.ino` file.
+The repository contains the app-notification sketch at [firmware/smart-glove/healthconnect_smart_glove.ino](../firmware/smart-glove/healthconnect_smart_glove.ino). It is adapted from the previously shared ESP32 sketch: Gmail SMTP is omitted for now and gesture events are POSTed to the HealthConnect patient-event endpoint.
 
-## Confirmed setup so far
+## Board and pin mapping
 
-- Board family: **ESP32 Dev Module**
-- Input sensors: flex sensors for detecting mild finger/hand movement
-- The board is expected to use Wi-Fi.
-- The glove is intended to send gesture requests to HealthConnect.
-- Gesture/request categories in the application: `WATER`, `FOOD`, `MEDICINE`, `NURSE`, and `EMERGENCY`.
+Select **ESP32 Dev Module** in Arduino IDE.
 
-## Important networking clarification
+| Signal | ESP32 GPIO | Function |
+| --- | ---: | --- |
+| Flex sensor 1 | 34 | HELP / EMERGENCY |
+| Flex sensor 2 | 35 | WATER |
+| Flex sensor 3 | 32 | FOOD |
+| Buzzer | 14 | Local audible alert |
+| Wi-Fi LED | 2 | LED is on while Wi-Fi is connected |
+| LCD SDA / SCL | 21 / 22 | I2C |
+| LCD address | 0x27 | 16×2 LCD |
 
-Being connected to the same Wi-Fi is not, by itself, enough to connect an ESP32 to a browser application. The firmware must send events to a network service that is reachable from the ESP32, and the service must accept and validate those events.
+These assignments come from the shared sketch. Verify them against the actual assembly. Each flex sensor must be wired with a suitable voltage divider and safe ESP32 input voltage. Calibrate thresholds while the glove is worn.
 
-When the ESP32 is on the same LAN as the laptop, it can usually reach a laptop-hosted endpoint using the laptop's LAN IP address and a listening port, subject to firewall and server configuration. A Cloudflare URL is useful only if the firmware is specifically written to make requests to that public URL and the endpoint supports the chosen protocol. A browser tunnel does not automatically create an ESP32 integration endpoint.
+## Gesture-event endpoint
 
-## Firmware details to confirm
+The documented application ingestion route is:
 
-Before declaring hardware integration complete, verify all of these directly in the final `.ino` file:
+```http
+POST /api/patient-events
+Content-Type: application/json
 
-- [ ] Exact GPIO pin for each flex sensor.
-- [ ] Analog read resolution/attenuation and any divider/resistor wiring assumptions.
-- [ ] Baseline calibration and bend thresholds for the actual glove.
-- [ ] How a gesture is classified and how ambiguous readings are rejected.
-- [ ] Wi-Fi connection/reconnection behavior.
-- [ ] Transport used to send events (HTTP, WebSocket, MQTT, etc.).
-- [ ] Destination host, port, path/topic, and payload format.
-- [ ] Device ID and patient ID mapping.
-- [ ] Retry/deduplication behavior when the network is interrupted.
-- [ ] Sensor filtering/debouncing.
-- [ ] Any credentials are kept out of Git history.
-
-## Recommended event contract
-
-Choose a contract that matches the endpoint actually implemented by HealthConnect. A conceptual event should contain:
-
-```json
-{
-  "deviceId": "glove-esp32-01",
-  "patientId": "pat-ramesh",
-  "eventId": "unique-device-event-id",
-  "gesture": "FOOD",
-  "timestamp": "ISO-8601 timestamp"
-}
+{"deviceId":"GLOVE-ESP32-DEV01","gesture":"WATER"}
 ```
 
-This is an example schema only, not a claim that the current firmware already sends this JSON. Adapt field names and transport to the implemented endpoint. Do not let an unknown gesture silently default to `WATER`; reject it and log a clear error.
+The firmware sends the device ID and one gesture value. The application's device registry must map that device ID to the intended patient. Update DEVICE_ID in the sketch if the admin panel uses a different ID. The request labels sent by the physical sketch are:
 
-## Calibration and testing
+| Flex sensor | Gesture value |
+| --- | --- |
+| GPIO 34 | EMERGENCY |
+| GPIO 35 | WATER |
+| GPIO 32 | FOOD |
 
-1. Upload the final sketch to the correct ESP32 Dev Module.
-2. Open Serial Monitor at the baud rate set in the sketch.
-3. Observe raw flex readings for the relaxed and intended bent positions.
-4. Calibrate thresholds with the glove actually worn; allow for person-to-person variation.
-5. Trigger one gesture at a time and confirm the serial output matches the expected label.
-6. Send one event and confirm HealthConnect receives exactly one request.
-7. Verify that `FOOD` appears as food, `WATER` as water, and each other gesture stays correctly mapped.
-8. Repeat while the Doctor, Attender, and Admin views are open.
-9. Disconnect Wi-Fi briefly and reconnect. Verify events are not duplicated.
-10. Test each patient/device mapping so one glove event cannot update the wrong patient.
+The current three-sensor firmware does not send MEDICINE or NURSE. Add and calibrate explicit gestures before describing those as physical glove features.
 
-## Deployment choices
+## Wi-Fi credentials
 
-### Same local Wi-Fi
-Use the laptop's LAN IP and an endpoint port explicitly enabled by the server. Check Windows Firewall and ensure the server listens on the LAN interface. Do not put `localhost` in the ESP32 firmware: on the ESP32, localhost refers to the ESP32 itself.
+1. Copy `firmware/smart-glove/secrets.example.h` to `firmware/smart-glove/secrets.h`.
+2. Add your 2.4 GHz Wi-Fi SSID and password in that local file.
+3. Do not commit `secrets.h`; it is excluded by `.gitignore`.
+4. Upload the sketch and open Serial Monitor at 115200 baud.
 
-### Cloudflare Quick Tunnel
-Use a public HTTPS hostname only if the firmware's networking library and backend endpoint support that connection and the app intentionally exposes an ingestion route. Some setups need a separate API route/server rather than pointing device firmware at the frontend. Review authentication and rate limiting before exposing an endpoint.
+## Option A — Same local Wi-Fi (recommended)
 
-## Safety
+1. Run HealthConnect on the laptop with the ingestion route enabled on port 3001.
+2. Run `ipconfig` on the laptop and identify its Wi-Fi IPv4 address.
+3. Set `LOCAL_SERVER_IP` in the sketch to that address.
+4. Leave `USE_CLOUDFLARE_TUNNEL` as 0.
+5. Permit the app port through Windows Firewall if necessary.
+6. Make sure both the laptop and ESP32 are on a network that allows device-to-device traffic.
 
-This glove is an assistive communication demonstration, not a validated medical device. It must not be used to diagnose a patient, measure medical-grade vitals, or replace hospital emergency communication.
+The ESP32 must not use `localhost`; that would point to the ESP32 itself.
+
+## Option B — ESP32 on a remote network through Cloudflare
+
+A remote glove can reach the laptop only if its firmware sends the event over the internet to an accessible ingestion endpoint. A shared browser URL alone does not connect the hardware.
+
+1. Start HealthConnect and the Cloudflare Quick Tunnel.
+2. Copy the current HTTPS tunnel URL into `CLOUDFLARE_BASE_URL`.
+3. Set `USE_CLOUDFLARE_TUNNEL` to 1.
+4. Ensure the ESP32 has internet access. Quick Tunnel URLs are temporary and may change.
+5. The sketch currently uses `WiFiClientSecure.setInsecure()`, which bypasses TLS certificate validation. This is a hackathon-only convenience and is not appropriate for production or real patient data. A secure deployment should validate the server certificate and authenticate device events.
+
+## Calibration, event delivery, and recovery
+
+1. Keep fingers straight during the startup calibration.
+2. Observe baseline readings over Serial Monitor.
+3. Bend one sensor, then confirm the decoded gesture and HTTP status in Serial Monitor.
+4. Verify one correctly typed request appears for the mapped patient.
+5. Straighten the finger until the reading passes the reset threshold before trying that gesture again.
+6. Disconnect and reconnect Wi-Fi and check that delivery failures are visible.
+7. Keep the application server running during the test.
+8. If the endpoint rejects the request, inspect the Vite/server terminal and confirm the device ID is registered.
+
+A bend produces at most one request until that sensor returns below its reset threshold. The emergency buzzer remains latched until board restart, matching the supplied behavior.
+
+## Safety and verification boundary
+
+This is an assistive communication demonstration, not a validated medical device. Firmware has been added to the repository but has not been compiled against the exact local Arduino setup or tested on the physical glove in this environment. Confirm the board, wiring, sensor calibration, endpoint response, and correct patient mapping before claiming live hardware-to-app operation.
