@@ -1,54 +1,62 @@
 # HealthConnect — Real-Time Clinical Monitoring & Caregiver Communication
 
-HealthConnect is a role-based clinical monitoring and assistive-care platform built to demonstrate how patient telemetry, clinical alerts, caregiver requests, clinician acknowledgement, nursing response, and emergency escalation can work together in one connected workflow.
+HealthConnect is a role-based clinical monitoring and assistive-care platform designed to demonstrate a connected workflow across patient telemetry, clinical alerts, family-caregiver requests, clinician acknowledgement, nursing response, and emergency escalation.
 
-> **Scope:** This repository is for an academic/hackathon software and hardware demonstration. Simulated vital readings are not real medical measurements and must not be used for diagnosis or treatment. The system is not a production medical device.
+> **Scope and safety:** This is an academic/hackathon demonstration. Software-generated vital readings are simulated and are not medical measurements. This project is not a validated medical device and must not be used to diagnose or treat patients.
 
 ## Project goals
 
-- Give clinicians a patient-focused view of current vital signs and clinical alert episodes.
+- Present patient vital signs and clinical episodes in a clinician-focused workspace.
 - Give authorized family caregivers a simple view of patient status and bedside requests.
-- Reduce alert flooding by updating a continuing patient-condition episode instead of creating a new card for every repeated reading.
-- Keep patient data scoped to the selected patient and role.
-- Demonstrate acknowledgement, nurse-response, and timed emergency-escalation workflows.
-- Provide a pathway for integrating an ESP32-based assistive glove.
+- Reduce alert flooding by updating one ongoing patient-condition episode rather than creating a new alert for each repeated reading.
+- Keep patient data scoped to the relevant patient and role.
+- Demonstrate alert acknowledgement, nurse response, and configured emergency escalation.
+- Connect an ESP32 flex-sensor glove to the application’s patient-event ingestion endpoint.
 
-## Main features
+## Main application features
 
 ### Clinical monitoring
-- Patient-specific vital-sign views: blood pressure, heart rate/pulse, oxygen saturation (SpO2), temperature, and respiratory rate.
-- Configurable software telemetry scenarios for stable, attention, and critical conditions.
+- Patient-specific views for blood pressure, heart rate/pulse, oxygen saturation (SpO2), temperature, and respiratory rate.
+- Software telemetry scenarios for stable, attention, and critical conditions.
 - Clinical episode grouping and repeated-reading deduplication.
 - Alert lifecycle with active, acknowledged, responding, and resolved states.
-- Trend/history views for patient telemetry.
+- Patient telemetry history and trends.
 
 ### Role-based workflows
 - **Doctor workstation:** assigned-patient worklist, current readings, alerts, acknowledgement, patient details, and nurse assistance.
-- **Family attender portal:** assigned patient status, care requests, latest vitals, caregiver guidance, and escalation options where configured.
-- **Administrator / clinical operations:** scenario controls, patient management, and call-service monitoring.
-- **Call service:** request queue, duty staff allocation, response status, and resolution workflow.
+- **Family attender portal:** assigned patient status, bedside requests, latest vitals, caregiver guidance, and escalation options where configured.
+- **Administrator / clinical operations:** patient management, scenario controls, and call-service monitoring.
+- **Call service:** request queue, staff allocation, response status, and resolution workflow.
 
 ### Realtime and interface
-- Browser-based React/TypeScript application.
-- Server-Sent Events (SSE) and cross-tab synchronization for live application updates.
-- Stale-state/version guards and event/mutation deduplication.
+- React/TypeScript/Vite application architecture.
+- Server-Sent Events (SSE) and cross-tab synchronization for live updates.
+- Version guards and event/mutation deduplication to protect newer state.
 - Responsive interface and multilingual UI support (English, Hindi, Tamil, and Telugu).
 - Indoor hospital wayfinding interface.
 
-### Assistive glove integration
-The glove uses an **ESP32 Dev Module** and flex sensors intended to detect predefined hand gestures for basic bedside requests. The ESP32 and web app need a reachable event endpoint or another explicitly implemented transport; simply joining the same Wi-Fi does not automatically pair the glove with the web app.
+## ESP32 smart glove
 
-Gesture labels intended by the application include:
+The repository now includes an app-notification firmware sketch for an **ESP32 Dev Module** using three flex sensors, an I2C LCD, a buzzer, and a Wi-Fi status LED.
 
-| Gesture/event | Intended request |
-| --- | --- |
-| WATER | Water request |
-| FOOD | Food/meal request |
-| MEDICINE | Medication assistance request |
-| NURSE | Nurse assistance request |
-| EMERGENCY | Emergency assistance request |
+| Sensor / control | ESP32 GPIO | Gesture sent to HealthConnect |
+| --- | ---: | --- |
+| Flex sensor 1 | 34 | EMERGENCY (display label: HELP EMERGENCY) |
+| Flex sensor 2 | 35 | WATER |
+| Flex sensor 3 | 32 | FOOD |
+| Buzzer | 14 | Local audible alert |
+| Wi-Fi LED | 2 | Indicates Wi-Fi connection |
+| LCD SDA / SCL | 21 / 22 | I2C display |
 
-The exact flex-sensor pin assignments, calibration thresholds, gesture classification, Wi-Fi configuration, and event payload must match the final firmware. Do not assume pin numbers or a network protocol without checking the code.
+The firmware posts gesture events to the documented `POST /api/patient-events` route using a device ID and gesture, for example:
+
+```json
+{"deviceId":"GLOVE-ESP32-DEV01","gesture":"WATER"}
+```
+
+The server must have that device ID mapped to the intended patient. This sketch currently implements **three physical gestures** (EMERGENCY, WATER, FOOD). The web app may offer MEDICINE or NURSE through software simulation, but those are not implemented in this three-sensor firmware.
+
+See [firmware/README.md](firmware/README.md) and [docs/GLOVE-INTEGRATION.md](docs/GLOVE-INTEGRATION.md) for wiring, configuration, local Wi-Fi setup, optional tunnel mode, calibration, and testing. The firmware has been added to this repository but still needs compilation and physical validation on the assembled glove.
 
 ## Architecture overview
 
@@ -56,7 +64,7 @@ The exact flex-sensor pin assignments, calibration thresholds, gesture classific
 ESP32 glove / software telemetry source
               |
               v
-   Event and telemetry ingestion
+      Patient-event ingestion
               |
               v
        Patient-scoped DataStore
@@ -69,7 +77,7 @@ ESP32 glove / software telemetry source
        |             |
        +------+------+
               |
-       Realtime sync (SSE)
+        Realtime sync (SSE)
               |
     +---------+----------+
     |         |          |
@@ -78,11 +86,11 @@ ESP32 glove / software telemetry source
 
 ## Technology
 
-The application architecture described for this project uses React, TypeScript, Vite, and service modules for state, clinical monitoring, telemetry, event processing, and network synchronization. Confirm the actual package/configuration files in the working project before assuming any optional backend or database is configured.
+The documented application architecture uses React, TypeScript, Vite, patient-scoped services, telemetry and event processing, and SSE-based synchronization. Confirm the actual app source and package scripts in the delivery checkout. This repository currently contains the project documentation and glove firmware integration files; the complete HealthConnect web-app source directory still needs to be committed from the working development folder for a fully reproducible checkout.
 
-## Run locally
+## Run the web app locally
 
-From the project root, with Node.js installed:
+From the complete HealthConnect web-app source directory, with Node.js installed:
 
 ```bash
 npm install
@@ -91,7 +99,7 @@ npm run dev -- --host 0.0.0.0 --port 3001
 
 Open the local URL printed by Vite, commonly `http://localhost:3001`.
 
-Run quality checks if the corresponding scripts exist in `package.json`:
+If the matching scripts exist in that source checkout, run:
 
 ```bash
 npm test
@@ -101,52 +109,40 @@ npm run build
 
 ## Cloudflare Quick Tunnel (optional)
 
-Start the app locally first. In a separate terminal, run:
+After the local app is running, a separate terminal can expose it for a temporary multi-device demonstration:
 
 ```bash
 cloudflared tunnel --url http://localhost:3001 --protocol http2
 ```
 
-Keep the tunnel terminal open while using the generated `https://….trycloudflare.com` address. A Quick Tunnel is temporary and may have network restrictions. A public tunnel exposes the application to anyone with the URL, so use only synthetic demonstration data and do not expose secrets or real patient information.
-
-## Hardware integration checklist
-
-1. Confirm the actual ESP32 board selection is **ESP32 Dev Module** in Arduino IDE.
-2. Confirm each flex sensor's wiring and exact GPIO assignments in firmware.
-3. Calibrate sensor baseline and bend ranges for the actual glove; do not copy thresholds from another glove without testing.
-4. Configure Wi-Fi securely in local firmware and never commit real credentials.
-5. Verify how firmware sends an event (HTTP, WebSocket, MQTT, or another transport) and match that transport to an implemented, reachable server endpoint.
-6. Include a stable patient/device identifier and an explicit gesture type in each event.
-7. Test each gesture separately and verify the correct request appears for the intended patient only.
-8. Test Wi-Fi loss/reconnection and ensure reconnects do not duplicate requests.
-9. Use synthetic data in demonstrations. Do not treat these readings as medical-grade measurements.
-
-See [docs/GLOVE-INTEGRATION.md](docs/GLOVE-INTEGRATION.md) for the integration checklist and event-contract guidance.
+Keep the tunnel process running. A Quick Tunnel hostname may change between sessions. Anyone who has the URL may be able to access exposed routes; use synthetic records only and do not expose secrets or real patient information.
 
 ## Repository contents
 
-- `docs/GLOVE-INTEGRATION.md` — glove integration and verification notes.
-- `docs/DEMO-WORKFLOW.md` — suggested end-to-end demonstration script.
-- `firmware/` — place the verified ESP32 Arduino `.ino` firmware here when available.
+- `firmware/smart-glove/healthconnect_smart_glove.ino` — ESP32 firmware adapted to send app events instead of Gmail.
+- `firmware/smart-glove/secrets.example.h` — Wi-Fi configuration template; copy to a local `secrets.h`.
+- `firmware/README.md` — board setup, endpoint configuration, and testing instructions.
+- `docs/GLOVE-INTEGRATION.md` — integration and networking guide.
+- `docs/DEMO-WORKFLOW.md` — suggested demonstration flow.
+- `.gitignore` — excludes local credentials, build outputs, and test artifacts.
 
 ## Security and privacy
 
-- Never commit `.env`, Wi-Fi passwords, API tokens, Supabase service-role keys, private keys, or real patient records.
+- Never commit Wi-Fi passwords, API tokens, Supabase service-role keys, private keys, local `secrets.h`, or real patient records.
 - Use synthetic names and readings in public demonstrations.
-- Enforce role and patient-level authorization on the server/data layer, not only by hiding UI elements.
-- A Cloudflare Quick Tunnel is not authentication. Do not expose an unauthenticated administrative interface containing sensitive data.
+- Enforce role and patient-level authorization at the server/data layer, not only by hiding UI elements.
+- A Cloudflare Quick Tunnel is transport, not authentication.
+- The optional tunnel mode in the current firmware bypasses TLS certificate validation for demonstration convenience; do not use that configuration with sensitive data.
 
-## Known scope/limitations
+## Known scope and limitations
 
-- Software telemetry is simulated unless a real device source is explicitly connected and verified.
-- Flex sensors detect bending; gesture detection requires calibrated logic in firmware.
-- The glove is not medically validated, and the platform is not intended for clinical decision-making.
-- Realtime synchronization only works when the client, server, and any required event-ingestion path are running and reachable.
+- Vital telemetry remains simulated unless a real medical telemetry device is specifically integrated and verified.
+- Flex sensors detect bending; calibration is person- and glove-dependent.
+- This firmware sends three gesture types only: EMERGENCY, WATER, and FOOD.
+- Gmail alerts were intentionally deferred; this firmware focuses on in-app requests.
+- Hardware-to-app delivery has not been physically tested in this environment. Compile and validate with the actual ESP32, sensors, local endpoint, and Wi-Fi before claiming a successful live integration.
+- No open-source license has been selected; unless a license is added, reuse and redistribution permissions are not explicitly granted.
 
 ## Team
 
 **Team Ultron — BioPulse 26**
-
-## License
-
-No license has been selected yet. Until one is added, reuse and redistribution rights are not explicitly granted.
