@@ -3,6 +3,7 @@
 #include <Wire.h>
 #include <LiquidCrystal_I2C.h>
 #include <DHT.h>
+#include "secrets.h"
 
 // Install these Arduino libraries:
 // 1) ESP Mail Client
@@ -10,16 +11,10 @@
 // 3) DHT sensor library by Adafruit (+ Adafruit Unified Sensor)
 // HR and SpO2 use RANDOMIZED DEMO values (not real measurements); no MAX30102 library is required.
 
-// ---------------- WIFI SETTINGS ----------------
-const char* WIFI_SSID = "YOUR_WIFI_SSID";
-const char* WIFI_PASSWORD = "YOUR_WIFI_PASSWORD";
-
 // ---------------- GMAIL SETTINGS ----------------
 #define SMTP_HOST "smtp.gmail.com"
 #define SMTP_PORT 465
-const char* SENDER_EMAIL = "YOUR_SENDER_EMAIL@gmail.com";
-const char* APP_PASSWORD = "YOUR_NEW_GOOGLE_APP_PASSWORD";       // Use a NEW Google App Password; do not share it.
-const char* RECIPIENT_EMAIL = "YOUR_RECIPIENT_EMAIL@gmail.com";
+// Wi-Fi and email addresses/passwords are defined in local secrets.h.
 
 // ---------------- HARDWARE PINS ----------------
 #define FLEX1_PIN 34
