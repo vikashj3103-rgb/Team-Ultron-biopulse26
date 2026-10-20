@@ -1,27 +1,41 @@
-# Logs
-logs
+# Dependencies and generated build artifacts
+node_modules/
+dist/
+.vite/
+coverage/
+playwright-report/
+test-results/
 *.log
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-pnpm-debug.log*
-lerna-debug.log*
 
-node_modules
-dist
-dist-ssr
-*.local
+# Environment configuration and secrets
 .env
 .env.*
 !.env.example
+secrets.h
+**/secrets.h
+credentials.json
+credentials.*.json
+service-account*.json
+*.pem
+*.key
+*.p12
+*.pfx
+*.keystore
+*.jks
+*.crt
+*.cer
 
-# Editor directories and files
-.vscode/*
-!.vscode/extensions.json
-.idea
+# Local/editor/OS files
 .DS_Store
-*.suo
-*.ntvs*
-*.njsproj
-*.sln
-*.sw?
+Thumbs.db
+*.local
+.idea/
+.vscode/
+
+# Local databases and potentially sensitive exports
+*.sqlite
+*.sqlite3
+*.db
+private-data/
+patient-records/
+exports/
