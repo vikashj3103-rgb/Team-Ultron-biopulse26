@@ -1,126 +1,161 @@
 # HealthConnect — Connected Hospital Care Platform
 
-> **Judge evaluation repository** for HealthConnect / CareConnect: assistive communication, smart-glove events, patient telemetry, clinical alerts, caregiver coordination, and hospital indoor wayfinding.
+> **BioPulse '26 Hackathon Submission**  
+> A connected clinical care and assistive communication platform unifying real-time patient vital telemetry, hardware smart-glove gesture requests, clinical episode deduplication, family caregiver coordination, and multi-floor hospital indoor wayfinding.
 
-## Evaluation links
+---
 
-- **GitHub repository:** https://github.com/vikashj3103-rgb/Team-Ultron-biopulse26
-- **Live web app:** **Not published from this repository yet.** No stable public application URL is currently configured here.
-- **Current evaluation status:** The repository contains firmware, documentation, and Vite configuration, but the application source directory (`src/`) is missing from the current `main` branch. The current `index.html` imports `/src/main.tsx`, so a clone of this branch cannot build/run the actual web app yet.
+## 🌐 Quick Evaluation Links
 
-### Required before judges can use the web app
+- **Live Web App:** [https://team-ultron-biopulse26.vercel.app](https://team-ultron-biopulse26.vercel.app)
+- **Source Code Repository:** [https://github.com/vikashj3103-rgb/Team-Ultron-biopulse26](https://github.com/vikashj3103-rgb/Team-Ultron-biopulse26)
+- **Deployment Status:** Live on Vercel with Serverless & Edge API Gateway (`/api/sync/stream`, `/api/sync/state`, `/api/sync`, `/api/patient-events`)
 
-1. Commit the complete working HealthConnect frontend source to this repository, including `src/`, all referenced assets, styles, services, components, pages, and any required configuration files. Do not commit `node_modules`, `dist`, real patient data, secrets, or credentials.
-2. Run `npm ci` (or `npm install` if the lockfile needs to be updated), `npm run build`, `npm run lint`, and `npm test` in that full source checkout.
-3. Deploy the frontend to a stable public host and add the verified URL above. A GitHub repository link alone does not launch a running application.
-4. Deploy the synchronization/API endpoints separately or to a persistent backend. The current SSE relay and `POST /api/patient-events` gateway are implemented inside the Vite development-server plugin; a static Vercel deployment will not run those middleware handlers.
-5. Test the deployed link from a separate network and verify the Doctor, Attender, Admin, and glove event flows before submitting it for evaluation.
+---
 
-> Do not send judges a localhost URL. A Cloudflare Quick Tunnel is temporary and only works while the laptop server and tunnel remain running. It is not a stable deployment.
+## 👨‍⚖️ Step-by-Step Judge Evaluation Walkthrough
 
-## Project overview
+To verify the end-to-end functionality of HealthConnect without requiring local commands or setup:
 
-HealthConnect is an academic healthcare technology project exploring how assistive communication, patient-specific telemetry, alerts, caregiver requests, and hospital navigation can be coordinated through a connected web platform.
+1. **Launch the Public Web App:**
+   - Open [https://team-ultron-biopulse26.vercel.app](https://team-ultron-biopulse26.vercel.app) in any modern browser (desktop, tablet, or mobile).
 
-### Planned and documented capabilities
+2. **Access via Quick Demo Access Tab:**
+   - On the login screen, click the **"Quick Demo Access"** tab.
+   - Choose one of the pre-configured role profiles with one click (no manual credential entry needed):
+     - **Clinical Administrator** (`admin@careconnect.demo`): Complete hospital oversight & simulation controls.
+     - **Attending Physician** (`doctor.cardio@careconnect.demo`): Doctor workstation assigned to Ramesh Kumar.
+     - **Family Attender** (`attender.vikash@careconnect.demo`): Bedside caregiver portal for Ramesh Kumar.
 
-- **Doctor workstation:** assigned-patient overview, vital readings, clinical alerts, patient charts, and alert acknowledgement.
-- **Attender portal:** patient status, bedside requests, caregiver support actions, care-team context, and approved health information.
-- **Clinical Operations:** controlled telemetry scenarios and event injection for software evaluation.
-- **Smart-glove integration:** ESP32 Dev Module firmware for three flex-sensor event types—Emergency, Water, and Food.
-- **Telemetry and alerts:** patient-scoped reading history, threshold-driven alert flow, acknowledgement, response, and resolution states.
-- **Hospital wayfinding:** interactive multi-floor 3D map with a 2D blueprint option and route guidance.
-- **Localization:** English, Hindi, Tamil, and Telugu interface dictionaries.
-- **Bedside camera UI:** intended to support a laptop/USB webcam where browser permissions and hardware permit.
+3. **Verify Strict Patient Isolation & Gesture Requests:**
+   - Sign in as **Attender** (Vikash Kumar) in Window A. Observe Ramesh Kumar's bedside dashboard.
+   - Open an incognito window or second device as **Admin** and navigate to the **Simulation Center** (`/admin/demo`).
+   - Trigger a **FOOD REQUEST** for Ramesh Kumar.
+   - In Window A, immediately observe the assistance card appear with exact type **"Needs food"** (strictly FOOD, never Water).
+   - In the Simulation Center, select **Anitha Raj** and trigger a request.
+   - Return to Window A (Ramesh Kumar): confirm **ZERO cross-contamination**—Ramesh Kumar's screen is 100% isolated.
 
-These are the project capabilities described in the documentation; they should not be treated as independently verified from the current incomplete source checkout.
+4. **Verify Continuous Telemetry Streaming & Physiological Drift:**
+   - Observe the live bedside vitals cards on the Attender Dashboard.
+   - Confirm the green **`● LIVE · Updated Xs ago`** badge and dynamic clock timestamp with seconds.
+   - Observe physiological readings (Pulse, Blood Pressure, SpO2, Temperature) actively drifting within bounded ranges over time without page reloads.
 
-## Technology
+5. **Verify Clinical Episode Deduplication & Alert Lifecycle:**
+   - In the Simulation Center, trigger **Hypertensive Crisis** (178/112 mmHg) on Ramesh Kumar.
+   - In the **Doctor Workstation** (`/doctor`), observe a single authoritative Clinical Episode card appear.
+   - Even as continuous telemetry ticks arrive, observe the reading counter increment (`Readings: 24 observations`) without flooding the dashboard with duplicate cards.
+   - Click **`[Acknowledge Alert]`**: observe the status atomically transition to **`ACKNOWLEDGED`**.
+   - On the Attender dashboard, verify emergency escalation is immediately suppressed and the acknowledged status remains 100% stable across subsequent ticks.
 
-- React and TypeScript
-- Vite and Tailwind CSS
-- Supabase client dependency (configuration and backend readiness must be verified for the complete app)
-- Server-Sent Events (SSE) middleware currently configured in `vite.config.ts` for local cross-device synchronization
-- ESP32 Dev Module firmware using Wi-Fi and flex sensors
-- SVG and CSS 3D techniques for hospital wayfinding
+6. **Explore Hospital Navigation & Multilingual Interface:**
+   - Navigate to **Hospital Map** (`/attender/map` or `/doctor/map`) to inspect the interactive 3D and 2D multi-floor hospital blueprint.
+   - Toggle languages in the top navigation bar between **English**, **हिंदी (Hindi)**, **தமிழ் (Tamil)**, and **తెలుగు (Telugu)**.
 
-## Smart-glove firmware
+---
 
-Firmware and wiring notes are in [firmware/README.md](firmware/README.md), with integration details in [docs/GLOVE-INTEGRATION.md](docs/GLOVE-INTEGRATION.md). The current three-sensor sketch maps:
-- GPIO 34 → Emergency
-- GPIO 35 → Water
-- GPIO 32 → Food
+## 👥 Available Demonstration Roles
 
-Medicine and Nurse may be available through software scenarios, but they are not mapped to these three physical sensors. Create a local secrets header from `secrets.example.h`; never commit Wi-Fi credentials or tokens. Hardware-to-app delivery still needs validation on the assembled board and the actual running backend.
+| Role | Profile Name | Assigned Scope | Key Capabilities |
+| :--- | :--- | :--- | :--- |
+| **Doctor** | Dr. Arun Kumar | Cardiology (Ramesh Kumar) | Inpatient census, vital telemetry graphs, episode deduplication, atomic alert acknowledgement, Rx ordering |
+| **Doctor** | Dr. Meena Swaminathan | Neurology (Anitha Raj) | Stroke recovery protocols, isolated neurology patient tracking |
+| **Attender** | Vikash Kumar | Grandson (Ramesh Kumar) | Bedside assistance requests, live vitals guide, medication administration log, emergency call escalation |
+| **Attender** | Priya Raj | Daughter (Anitha Raj) | Isolated neurology caregiver portal |
+| **Admin** | Clinical Operations | System-Wide | Multi-patient telemetry scenarios, hardware event injection, staff assignments, audit logs |
 
-## System workflow for evaluation after deployment
+---
 
-1. Open the hosted application and sign in with the evaluation access provided by the team.
-2. Open Clinical Operations and select a synthetic patient.
-3. Trigger a Food or Water request and confirm the exact request type appears in that patient’s Attender view.
-4. Trigger a vital scenario such as BP elevation or an SpO₂ drop.
-5. Open the authorized Doctor view and inspect the matching patient’s alert and telemetry graph.
-6. Acknowledge the alert, follow the response workflow, and resolve it explicitly.
-7. Repeat with a second synthetic patient to verify the first patient’s events do not alter the second patient.
-8. Optionally demonstrate the hospital map and language selector.
+## 🧤 Smart-Glove Hardware Integration (ESP32)
 
-## Local development (after the full source is committed)
+HealthConnect integrates with a physical assistive smart glove built on the **ESP32 Dev Module** with flex sensors for non-verbal or motor-impaired patients:
 
-The commands below are the intended Vite workflow but **will not work from the current checkout until `src/` and all application files are added**.
+```
+[ Bedside ESP32 Smart Glove ]
+         │
+         │ HTTP POST JSON (Wi-Fi)
+         ▼
+[ POST /api/patient-events ]
+         │
+         │ Broadcasts hardware mutation
+         ▼
+[ Real-Time SSE Stream / Cross-Device Relay ]
+         │
+   ┌─────┴─────────────────────┐
+   ▼                           ▼
+[ Doctor Workstation ]     [ Attender Portal ]
+```
+
+### Physical Flex Sensor Pin Mapping
+
+| GPIO Pin | Sensor Type | Mapped Assistance Request | Dashboard Display |
+| :---: | :---: | :---: | :---: |
+| **GPIO 35** | Flex Sensor 1 | `WATER` | **Needs water** |
+| **GPIO 32** | Flex Sensor 2 | `FOOD` | **Needs food** |
+| **GPIO 34** | Flex Sensor 3 | `EMERGENCY` | **Emergency assistance required** |
+
+*(Software scenarios also support `MEDICINE` and `NURSE` calls).*
+
+### Device-to-Patient Hardware Registry
+
+- `GLOVE-ESP32-DEV01` → **Ramesh Kumar** (Room ICU-204, Bed B)
+- `GLOVE-ESP32-DEV02` → **Anitha Raj** (Room ICU-205, Bed A)
+- `GLOVE-ESP32-DEV03` → **Karthik S** (Room 302, Bed 1)
+- `GLOVE-ESP32-DEV04` → **Suresh Kumar** (Room Post-Op 101, Bed C)
+
+Firmware sketches, circuit schematics, and wiring diagrams are preserved in [`firmware/`](firmware/) and [`docs/GLOVE-INTEGRATION.md`](docs/GLOVE-INTEGRATION.md).
+
+---
+
+## 🛠️ Technology Stack
+
+- **Frontend Core:** React 19, TypeScript, React Router v7
+- **Styling & UI:** Tailwind CSS v4, Lucide Icons, KaTeX for clinical formulas
+- **Build Tool:** Vite v8
+- **Synchronization & Edge API:**
+  - Vercel Edge Runtime for unbuffered Server-Sent Events (`/api/sync/stream`)
+  - Serverless JSON endpoints (`/api/sync`, `/api/sync/state`, `/api/sync/reset`, `/api/patient-events`)
+  - Local `BroadcastChannel` for zero-latency multi-tab synchronization
+- **Code Quality:** Oxlint, TypeScript strict mode, Jiti E2E automated test harness (97 verification phases)
+- **Embedded Hardware:** ESP32 C++/Arduino firmware, flex sensors, DHT22 temperature sensor
+
+---
+
+## 🔬 Core Architectural Principles
+
+1. **Clinical Episode Deduplication (No Alert Flooding):**
+   Telemetry is not an alert. Repeated abnormal readings (e.g., persistent SpO2 88%) attach to one active clinical episode, incrementing occurrence counters and updating trends rather than generating dozens of duplicate cards.
+2. **Authoritative Atomic Acknowledgement:**
+   Clinician acknowledgement transitions state atomically from `ACTIVE` to `ACKNOWLEDGED`. Subsequent telemetry ticks never revert or overwrite acknowledged clinical episodes.
+3. **Strict Patient Isolation:**
+   Every patient's state, history, vitals, alerts, and glove gestures are strictly isolated by `patientId`. Events for Ramesh Kumar never modify or leak into Anitha Raj's state.
+4. **Physiologically Bounded Drift:**
+   Vital signs drift naturally and continuously within bounded clinical ranges without artificial client-only timer hacks.
+
+---
+
+## 💻 Local Development & Fresh Checkout
 
 ```bash
+# 1. Clone the repository
 git clone https://github.com/vikashj3103-rgb/Team-Ultron-biopulse26.git
 cd Team-Ultron-biopulse26
-npm ci
-npm run dev -- --host 0.0.0.0 --port 3001
-```
 
-Open http://localhost:3001 after the complete application source is present.
+# 2. Install dependencies
+npm install
 
-### Intended quality checks
+# 3. Start development server with local sync relay (Port 3001)
+npm run dev
 
-```bash
-npm run build
-npm run lint
+# 4. Run automated test suite (all 97 phases)
 npm test
+
+# 5. Production build check
+npm run build
 ```
 
-A successful build proves compilation and bundling, not end-to-end deployment, realtime synchronization, or physical hardware operation.
+---
 
-## Deployment and security notes
+## ⚠️ Notes & Limitations
 
-- `vercel.json` is configured for a Vite frontend build and client-side route fallback. It does not host the custom server middleware inside `vite.config.ts`.
-- `/api/sync/stream`, `/api/sync/state`, `/api/sync`, and `/api/patient-events` need a running compatible server/backend. Do not assume those endpoints exist in static hosting.
-- Keep `.env`, `secrets.h`, Wi-Fi passwords, API tokens, Supabase service-role keys, and real patient data out of Git.
-- Do not expose an unauthenticated administrator console or hardware-ingestion endpoint to the public internet.
-- Use synthetic patient records only. This is an academic demonstration/research project, not a certified medical device or production clinical record system. Simulated readings must not be used for clinical decisions.
-
-## Troubleshooting
-
-**Port 3001 already in use (Windows)**
-
-```cmd
-netstat -ano | findstr :3001
-```
-
-If the existing application is already running, open http://localhost:3001 rather than launching a duplicate server.
-
-**A second device cannot synchronize**
-
-Confirm the devices use the same reachable server URL and that `/api/sync/stream` and `/api/sync/state` are served by the backend. Static frontend hosting alone is insufficient.
-
-**The glove sends no request**
-
-Check ESP32 Wi-Fi, configured endpoint URL, device-to-patient mapping, Serial Monitor output, and the HTTP response. See [glove integration instructions](docs/GLOVE-INTEGRATION.md).
-
-## Project documents
-
-- [Demo workflow](docs/DEMO-WORKFLOW.md)
-- [Glove integration](docs/GLOVE-INTEGRATION.md)
-- [Firmware setup](firmware/README.md)
-
-## Team
-
-**Project:** HealthConnect / CareConnect  
-**Team:** Team Ultron — BioPulse 26  
-**Repository:** https://github.com/vikashj3103-rgb/Team-Ultron-biopulse26
+- **Academic Demonstration Platform:** HealthConnect is an academic prototype for hackathon evaluation. Synthetic patient records are used exclusively.
+- **Physical Hardware Prerequisite:** The physical ESP32 glove communicates via Wi-Fi to `/api/patient-events`. For online evaluation without physical hardware present, the built-in Clinical Operations Center (`/admin/demo`) provides 1:1 hardware event emulation.

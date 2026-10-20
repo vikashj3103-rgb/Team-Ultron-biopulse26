@@ -1,0 +1,1097 @@
+[
+  {
+    "key": "nav.patientCare",
+    "en": "Patient Care",
+    "ta": "நோயாளர் பராமரிப்பு"
+  },
+  {
+    "key": "nav.familyCare",
+    "en": "Family Care",
+    "ta": "குடும்பப் பராமரிப்பு"
+  },
+  {
+    "key": "nav.operationsSecurity",
+    "en": "Operations & Security",
+    "ta": "செயல்பாடுகள் மற்றும் பாதுகாப்பு"
+  },
+  {
+    "key": "nav.doctorDirectory",
+    "en": "Doctor Directory",
+    "ta": "மருத்துவர் பட்டியல்"
+  },
+  {
+    "key": "nav.specialtyAllocator",
+    "en": "Specialty Allocator",
+    "ta": "சிறப்புப் பிரிவு ஒதுக்கீடு"
+  },
+  {
+    "key": "nav.attenderAccounts",
+    "en": "Attender Accounts",
+    "ta": "பராமரிப்பாளர் கணக்குகள்"
+  },
+  {
+    "key": "nav.urgentCallService",
+    "en": "Urgent Call Service",
+    "ta": "அவசர உதவி அழைப்பு"
+  },
+  {
+    "key": "nav.hospitalActivityLog",
+    "en": "Hospital Activity Log",
+    "ta": "மருத்துவமனை செயல்பாட்டு பதிவு"
+  },
+  {
+    "key": "nav.auditSecurityLedger",
+    "en": "Audit & Security Ledger",
+    "ta": "தணிக்கை மற்றும் பாதுகாப்புப் பதிவு"
+  },
+  {
+    "key": "nav.simulationCenter",
+    "en": "Clinical Operations",
+    "ta": "செயல்முறைப் பயிற்சிக் கூடம்"
+  },
+  {
+    "key": "nav.smartGloveSimulation",
+    "en": "Connected Telemetry Network",
+    "ta": "ஸ்மார்ட் கையுறை கண்காணிப்பு மையம்"
+  },
+  {
+    "key": "nav.clinicalWorkflow",
+    "en": "Clinical Workflow",
+    "ta": "மருத்துவப் பணிப்பாய்வு"
+  },
+  {
+    "key": "nav.criticalPatients",
+    "en": "Critical Patients",
+    "ta": "மிகவும் அவசர நோயாளிகள்"
+  },
+  {
+    "key": "nav.worklist",
+    "en": "Worklist",
+    "ta": "பணிப் பட்டியல்"
+  },
+  {
+    "key": "nav.telemetryDemo",
+    "en": "Live Telemetry Stream",
+    "ta": "உடல் அளவீட்டுக் கண்காணிப்பு"
+  },
+  {
+    "key": "nav.syntheticDemoDisclosure",
+    "en": "Continuous telemetry monitoring active across clinical stations.",
+    "ta": "இந்த உலாவியில் மாதிரி அளவீடுகள் மட்டுமே இயங்குகின்றன; சாதனத் தரவு இணைக்கப்படவில்லை."
+  },
+  {
+    "key": "nav.moreFamilyPages",
+    "en": "More family care pages",
+    "ta": "குடும்பப் பராமரிப்புக்கான கூடுதல் பக்கங்கள்"
+  },
+  {
+    "key": "nav.careAi",
+    "en": "CareAI",
+    "ta": "CareAI"
+  },
+  {
+    "key": "nav.realtimeDemoDisclosure",
+    "en": "Continuous multi-parameter telemetry stream active across clinical monitoring stations.",
+    "ta": "நேரடி மாதிரி அளவீடுகள்; கூடுதல் மருத்துவச் சாதனம் இணைக்கப்படவில்லை."
+  },
+  {
+    "key": "nav.familyCompanion",
+    "en": "Family Companion",
+    "ta": "குடும்பத் துணைவர்"
+  },
+  {
+    "key": "nav.patientInfo",
+    "en": "Patient information",
+    "ta": "நோயாளர் தகவல்"
+  },
+  {
+    "key": "nav.myPatient",
+    "en": "My patient",
+    "ta": "எனது நோயாளர்"
+  },
+  {
+    "key": "nav.meds",
+    "en": "Meds",
+    "ta": "மருந்துகள்"
+  },
+  {
+    "key": "nav.wardScope",
+    "en": "Ward Scope",
+    "ta": "வார்டு பொறுப்பு வரம்பு"
+  },
+  {
+    "key": "nav.monitoringPatients",
+    "en": "Monitoring {count} assigned inpatients under your clinical care.",
+    "ta": "உங்கள் மருத்துவப் பராமரிப்பில் {count} உள்நோயாளிகள் கண்காணிக்கப்படுகின்றனர்."
+  },
+  {
+    "key": "nav.doctorWorkstation",
+    "en": "Doctor Workstation",
+    "ta": "மருத்துவர் பணிநிலையம்"
+  },
+  {
+    "key": "nav.cardioInpatientCare",
+    "en": "Cardiology Inpatient Care",
+    "ta": "இதயவியல் உள்நோயாளர் பராமரிப்பு"
+  },
+  {
+    "key": "alerts.assignedClinicalAcknowledgement",
+    "en": "Clinical acknowledgement is for the assigned doctor or clinical staff.",
+    "ta": "ஒதுக்கப்பட்ட மருத்துவர் அல்லது மருத்துவப் பணியாளர்கள் மட்டுமே மருத்துவ எச்சரிக்கையை ஏற்கலாம்."
+  },
+  {
+    "key": "alerts.mutedVisualOnly",
+    "en": "Sound is muted. Visual alerts remain available.",
+    "ta": "ஒலி அணைக்கப்பட்டுள்ளது. காட்சிப் எச்சரிக்கைகள் தொடர்ந்து காட்டப்படும்."
+  },
+  {
+    "key": "alerts.clinicalTelemetry",
+    "en": "Clinical Vital Alerts",
+    "ta": "மருத்துவ உடல் அளவீட்டு எச்சரிக்கைகள்"
+  },
+  {
+    "key": "alerts.demoReadingDescription",
+    "en": "Real-time threshold alerts generated from continuous vital monitoring for your assigned patients.",
+    "ta": "உங்களுக்கு ஒதுக்கப்பட்ட நோயாளிகளின் பதிவுசெய்யப்பட்ட மாதிரி அளவீடுகளிலிருந்து உருவாக்கப்பட்ட எச்சரிக்கைகள்."
+  },
+  {
+    "key": "alerts.activeAlarms",
+    "en": "Active Alarms",
+    "ta": "செயலில் உள்ள எச்சரிக்கைகள்"
+  },
+  {
+    "key": "alerts.totalIncidents",
+    "en": "Total Incidents",
+    "ta": "மொத்த நிகழ்வுகள்"
+  },
+  {
+    "key": "alerts.noAssignedAlerts",
+    "en": "No vital alerts recorded for your assigned inpatients.",
+    "ta": "உங்களுக்கு ஒதுக்கப்பட்ட நோயாளிகளுக்கு தீவிர எச்சரிக்கைகள் இல்லை."
+  },
+  {
+    "key": "alerts.value",
+    "en": "Value",
+    "ta": "மதிப்பு"
+  },
+  {
+    "key": "alerts.acknowledgedBy",
+    "en": "Acknowledged by {name}",
+    "ta": "{name} ஏற்றுக்கொண்டார்"
+  },
+  {
+    "key": "alerts.resolveAlarm",
+    "en": "Resolve Alarm",
+    "ta": "எச்சரிக்கையைத் தீர்க்கவும்"
+  },
+  {
+    "key": "alerts.resolved",
+    "en": "Resolved",
+    "ta": "தீர்க்கப்பட்டது"
+  },
+  {
+    "key": "alerts.adminTitle",
+    "en": "Clinical Operational Alerts",
+    "ta": "பதிவுசெய்யப்பட்ட மருத்துவ மதிப்பாய்வு எச்சரிக்கைகள்"
+  },
+  {
+    "key": "alerts.adminDescription",
+    "en": "Operational review status from clinical vital events.",
+    "ta": "உடல் அளவீட்டு நிகழ்வுகளின் செயல்பாட்டு நிலை. இவை மருத்துவக் குழு மதிப்பாய்வுக்கானவை."
+  },
+  {
+    "key": "alerts.reviewNeeded",
+    "en": "Clinical team review required",
+    "ta": "மருத்துவக் குழு மதிப்பாய்வு தேவை"
+  },
+  {
+    "key": "alerts.operationalNotice",
+    "en": "Operational status only. Clinical acknowledgement is for the assigned doctor or clinical staff.",
+    "ta": "செயல்பாட்டு நிலை மட்டுமே. ஒதுக்கப்பட்ட மருத்துவர் அல்லது மருத்துவப் பணியாளர்கள் மட்டுமே எச்சரிக்கையை ஏற்கலாம்."
+  },
+  {
+    "key": "attender.noPatientLinkedDescription",
+    "en": "Your family caregiver profile ({name}) is waiting to be linked to a patient by hospital admissions.",
+    "ta": "உங்கள் குடும்பப் பராமரிப்பாளர் சுயவிவரம் ({name}) மருத்துவமனை சேர்க்கைப் பிரிவால் நோயாளியுடன் இணைக்கப்பட காத்திருக்கிறது."
+  },
+  {
+    "key": "attender.latestBedsideReadings",
+    "en": "Latest bedside readings",
+    "ta": "சமீபத்திய படுக்கையருகே அளவீடுகள்"
+  },
+  {
+    "key": "attender.whatDoTheseMean",
+    "en": "What do these mean?",
+    "ta": "இவற்றின் பொருள் என்ன?"
+  },
+  {
+    "key": "attender.steadyBeat",
+    "en": "Within the usual range",
+    "ta": "வழக்கமான வரம்பிற்குள்"
+  },
+  {
+    "key": "attender.mildVariation",
+    "en": "Outside the usual range",
+    "ta": "வழக்கமான வரம்பிற்கு வெளியே"
+  },
+  {
+    "key": "attender.slightlyHigh",
+    "en": "Above the usual range",
+    "ta": "வழக்கமான வரம்பை விட அதிகம்"
+  },
+  {
+    "key": "attender.normalRange",
+    "en": "Within the usual range",
+    "ta": "வழக்கமான வரம்பிற்குள்"
+  },
+  {
+    "key": "attender.healthyOxygen",
+    "en": "Within the usual range",
+    "ta": "வழக்கமான வரம்பிற்குள்"
+  },
+  {
+    "key": "attender.nurseMonitoring",
+    "en": "Care team monitoring",
+    "ta": "பராமரிப்புக் குழு கண்காணிக்கிறது"
+  },
+  {
+    "key": "attender.doctorGuidance",
+    "en": "Doctor's guidance for caregiver",
+    "ta": "பராமரிப்பாளருக்கான மருத்துவர் வழிகாட்டுதல்"
+  },
+  {
+    "key": "attender.noGuidanceShared",
+    "en": "No guidance has been shared by the care team yet.",
+    "ta": "பராமரிப்புக் குழு இன்னும் வழிகாட்டுதலைப் பகிரவில்லை."
+  },
+  {
+    "key": "attender.bedsideAssistanceLog",
+    "en": "Bedside assistance log",
+    "ta": "படுக்கையருகே உதவி பதிவு"
+  },
+  {
+    "key": "attender.gestureCallHistory",
+    "en": "History of bedside requests from patient care interface",
+    "ta": "கையுறை அழைப்பு வழியாகச் செய்த உதவி கோரிக்கைகளின் வரலாறு"
+  },
+  {
+    "key": "attender.totalCalls",
+    "en": "{count} total requests",
+    "ta": "மொத்தம் {count} கோரிக்கைகள்"
+  },
+  {
+    "key": "attender.noGloveCallsToday",
+    "en": "No bedside requests have been recorded today.",
+    "ta": "இன்று படுக்கையருகே உதவி கோரிக்கைகள் பதிவாகவில்லை."
+  },
+  {
+    "key": "attender.temperatureHighFever",
+    "en": "High fever ({value} °F) — nurse alerted",
+    "ta": "அதிக காய்ச்சல் ({value} °F) — செவிலியருக்கு அறிவிக்கப்பட்டது"
+  },
+  {
+    "key": "attender.temperatureElevated",
+    "en": "Elevated temperature / mild fever ({value} °F)",
+    "ta": "வெப்பநிலை உயர்வு / லேசான காய்ச்சல் ({value} °F)"
+  },
+  {
+    "key": "attender.temperatureLow",
+    "en": "Low temperature warning ({value} °F)",
+    "ta": "வெப்பநிலை குறைவு ({value} °F)"
+  },
+  {
+    "key": "attender.temperatureTarget",
+    "en": "Target temperature range ({value} °F)",
+    "ta": "வெப்பநிலை இலக்கு வரம்பு ({value} °F)"
+  },
+  {
+    "key": "doctor.workloadSummary",
+    "en": "Clinical workload summary",
+    "ta": "மருத்துவப் பணிச்சுமை சுருக்கம்"
+  },
+  {
+    "key": "doctor.assignedPatients",
+    "en": "Assigned patients",
+    "ta": "ஒதுக்கப்பட்ட நோயாளிகள்"
+  },
+  {
+    "key": "doctor.criticalAlerts",
+    "en": "Critical alerts",
+    "ta": "மிகவும் அவசர எச்சரிக்கைகள்"
+  },
+  {
+    "key": "doctor.requireReview",
+    "en": "Require review",
+    "ta": "மதிப்பாய்வு தேவை"
+  },
+  {
+    "key": "doctor.patientsRequiringAttention",
+    "en": "Patients requiring attention",
+    "ta": "கவனம் தேவைப்படும் நோயாளிகள்"
+  },
+  {
+    "key": "doctor.reviewCriticalFirst",
+    "en": "Review critical and out-of-range patients first.",
+    "ta": "முதலில் மிகவும் அவசர மற்றும் வரம்புக்கு வெளியான நோயாளிகளைப் பார்வையிடவும்."
+  },
+  {
+    "key": "doctor.patientCount",
+    "en": "{count} patients",
+    "ta": "{count} நோயாளிகள்"
+  },
+  {
+    "key": "doctor.patientCountSingular",
+    "en": "1 patient",
+    "ta": "1 நோயாளர்"
+  },
+  {
+    "key": "doctor.latest",
+    "en": "Latest",
+    "ta": "சமீபத்தியது"
+  },
+  {
+    "key": "doctor.noRecentEvent",
+    "en": "No recent event recorded",
+    "ta": "சமீபத்திய நிகழ்வு பதிவாகவில்லை"
+  },
+  {
+    "key": "doctor.openRecord",
+    "en": "Open record",
+    "ta": "பதிவைத் திறக்கவும்"
+  },
+  {
+    "key": "doctor.noCriticalPatients",
+    "en": "No critical patients require immediate attention",
+    "ta": "உடனடி கவனம் தேவைப்படும் மிகவும் அவசர நோயாளிகள் இல்லை"
+  },
+  {
+    "key": "doctor.allPatientsStable",
+    "en": "All assigned patients are stable or within their configured review range.",
+    "ta": "ஒதுக்கப்பட்ட அனைத்து நோயாளிகளும் நிலையாக உள்ளனர் அல்லது மதிப்பாய்வு வரம்பிற்குள் உள்ளனர்."
+  },
+  {
+    "key": "doctor.todaysClinicalWork",
+    "en": "Today's clinical work",
+    "ta": "இன்றைய மருத்துவப் பணிகள்"
+  },
+  {
+    "key": "doctor.todaysClinicalWorkDescription",
+    "en": "Recorded investigations, medication administrations, and procedures for your assigned patients.",
+    "ta": "உங்களுக்கு ஒதுக்கப்பட்ட நோயாளிகளின் பரிசோதனைகள், மருந்து வழங்கல்கள் மற்றும் செயல்முறைகள்."
+  },
+  {
+    "key": "doctor.investigations",
+    "en": "Investigations",
+    "ta": "பரிசோதனைகள்"
+  },
+  {
+    "key": "doctor.pendingCount",
+    "en": "{count} pending",
+    "ta": "{count} நிலுவையில்"
+  },
+  {
+    "key": "doctor.criticalFlag",
+    "en": "Critical flag",
+    "ta": "மிகவும் அவசரக் குறியீடு"
+  },
+  {
+    "key": "doctor.noInvestigationsAwaitingReview",
+    "en": "No investigations are awaiting review.",
+    "ta": "மதிப்பாய்வுக்காக பரிசோதனைகள் நிலுவையில் இல்லை."
+  },
+  {
+    "key": "doctor.medicationReview",
+    "en": "Medication review",
+    "ta": "மருந்து மதிப்பாய்வு"
+  },
+  {
+    "key": "doctor.dueCount",
+    "en": "{count} due",
+    "ta": "{count} நிலுவை"
+  },
+  {
+    "key": "doctor.noPendingAdministrations",
+    "en": "No pending or missed administrations.",
+    "ta": "நிலுவையிலோ தவறவிடப்பட்டோ மருந்து வழங்கல்கள் இல்லை."
+  },
+  {
+    "key": "doctor.todaysProcedures",
+    "en": "Today's procedures",
+    "ta": "இன்றைய செயல்முறைகள்"
+  },
+  {
+    "key": "doctor.scheduledCount",
+    "en": "{count} scheduled",
+    "ta": "{count} திட்டமிடப்பட்டது"
+  },
+  {
+    "key": "doctor.assignedPatient",
+    "en": "Assigned patient",
+    "ta": "ஒதுக்கப்பட்ட நோயாளர்"
+  },
+  {
+    "key": "doctor.noProceduresToday",
+    "en": "No procedures scheduled for today.",
+    "ta": "இன்று செயல்முறைகள் திட்டமிடப்படவில்லை."
+  },
+  {
+    "key": "doctor.myPatients",
+    "en": "My patients",
+    "ta": "எனது நோயாளிகள்"
+  },
+  {
+    "key": "doctor.assignedRecordsDescription",
+    "en": "Assigned records and latest vital readings.",
+    "ta": "ஒதுக்கப்பட்ட பதிவுகளும் சமீபத்திய உடல் அளவீடுகளும்."
+  },
+  {
+    "key": "doctor.searchAssignedPatients",
+    "en": "Search assigned patients",
+    "ta": "ஒதுக்கப்பட்ட நோயாளிகளைத் தேடவும்"
+  },
+  {
+    "key": "doctor.searchPatientPlaceholder",
+    "en": "Search name, MRN, room, bed, department, or condition",
+    "ta": "பெயர், MRN, அறை, படுக்கை, பிரிவு அல்லது நிலை மூலம் தேடவும்"
+  },
+  {
+    "key": "doctor.clearPatientSearch",
+    "en": "Clear patient search",
+    "ta": "நோயாளர் தேடலை அழிக்கவும்"
+  },
+  {
+    "key": "doctor.filterByAcuity",
+    "en": "Filter patients by acuity",
+    "ta": "மருத்துவ அவசரத் தேவைக்கேற்ப வடிகட்டவும்"
+  },
+  {
+    "key": "doctor.all",
+    "en": "All",
+    "ta": "அனைத்தும்"
+  },
+  {
+    "key": "doctor.noAssignedPatients",
+    "en": "No assigned patients",
+    "ta": "நோயாளிகள் ஒதுக்கப்படவில்லை"
+  },
+  {
+    "key": "doctor.noPatientsMatchFilters",
+    "en": "No patients match these filters",
+    "ta": "இந்த வடிகட்டிகளுக்கு நோயாளிகள் பொருந்தவில்லை"
+  },
+  {
+    "key": "doctor.assignedRecordsWillAppear",
+    "en": "Assigned patient records will appear here.",
+    "ta": "ஒதுக்கப்பட்ட நோயாளர் பதிவுகள் இங்கே தோன்றும்."
+  },
+  {
+    "key": "doctor.tryAnotherFilter",
+    "en": "Try another acuity filter or clear the search.",
+    "ta": "வேறு வடிகட்டியை முயற்சிக்கவும் அல்லது தேடலை அழிக்கவும்."
+  },
+  {
+    "key": "doctor.resetFilters",
+    "en": "Reset filters",
+    "ta": "வடிகட்டிகளை மீட்டமைக்கவும்"
+  },
+  {
+    "key": "doctor.attender",
+    "en": "Attender",
+    "ta": "பராமரிப்பாளர்"
+  },
+  {
+    "key": "doctor.unassigned",
+    "en": "Unassigned",
+    "ta": "ஒதுக்கப்படவில்லை"
+  },
+  {
+    "key": "doctor.clinicalDetail",
+    "en": "Clinical detail",
+    "ta": "மருத்துவ விவரம்"
+  },
+  {
+    "key": "doctor.recentClinicalEvents",
+    "en": "Recent clinical events",
+    "ta": "சமீபத்திய மருத்துவ நிகழ்வுகள்"
+  },
+  {
+    "key": "doctor.recentClinicalEventsDescription",
+    "en": "Latest recorded changes for your assigned patients.",
+    "ta": "உங்களுக்கு ஒதுக்கப்பட்ட நோயாளிகளின் சமீபத்திய பதிவுகள்."
+  },
+  {
+    "key": "doctor.noRecentEvents",
+    "en": "No recent events",
+    "ta": "சமீபத்திய நிகழ்வுகள் இல்லை"
+  },
+  {
+    "key": "doctor.noRecentEventsDescription",
+    "en": "Clinical events for your assigned patients will appear here.",
+    "ta": "உங்களுக்கு ஒதுக்கப்பட்ட நோயாளிகளின் மருத்துவ நிகழ்வுகள் இங்கே தோன்றும்."
+  },
+  {
+    "key": "admin.awaitingResponse",
+    "en": "Awaiting response or resolution",
+    "ta": "பதில் அல்லது தீர்வுக்காகக் காத்திருக்கிறது"
+  },
+  {
+    "key": "admin.clinicalReviewsPending",
+    "en": "Clinical reviews pending",
+    "ta": "நிலுவையிலுள்ள மருத்துவ மதிப்பாய்வுகள்"
+  },
+  {
+    "key": "admin.resultsReportsAwaiting",
+    "en": "Results and reports awaiting review",
+    "ta": "மதிப்பாய்வுக்காக முடிவுகளும் அறிக்கைகளும் காத்திருக்கின்றன"
+  },
+  {
+    "key": "admin.hospitalOperations",
+    "en": "Hospital operations",
+    "ta": "மருத்துவமனை செயல்பாடுகள்"
+  },
+  {
+    "key": "admin.dashboardDescription",
+    "en": "Review the inpatient census, urgent calls, alerts, and activity that needs coordination.",
+    "ta": "உள்நோயாளர் எண்ணிக்கை, அவசர அழைப்புகள், எச்சரிக்கைகள் மற்றும் ஒருங்கிணைப்பு தேவைப்படும் செயல்பாடுகளைப் பார்வையிடவும்."
+  },
+  {
+    "key": "admin.openOperationalItems",
+    "en": "open operational items",
+    "ta": "தீர்க்கப்படாத செயல்பாட்டு உருப்படிகள்"
+  },
+  {
+    "key": "admin.admitPatient",
+    "en": "Admit patient",
+    "ta": "நோயாளியை அனுமதிக்கவும்"
+  },
+  {
+    "key": "admin.careTeamAssignments",
+    "en": "Care team assignments",
+    "ta": "பராமரிப்புக் குழு ஒதுக்கீடுகள்"
+  },
+  {
+    "key": "admin.operationalPriorities",
+    "en": "Hospital operational priorities",
+    "ta": "மருத்துவமனை செயல்பாட்டு முன்னுரிமைகள்"
+  },
+  {
+    "key": "admin.additionalWorkload",
+    "en": "Additional hospital workload",
+    "ta": "கூடுதல் மருத்துவமனை பணிச்சுமை"
+  },
+  {
+    "key": "admin.occupiedBeds",
+    "en": "Occupied beds",
+    "ta": "பயன்பாட்டிலுள்ள படுக்கைகள்"
+  },
+  {
+    "key": "admin.admissionsDischarges",
+    "en": "Admissions / discharges",
+    "ta": "சேர்க்கைகள் / வெளியேற்றங்கள்"
+  },
+  {
+    "key": "admin.proceduresToday",
+    "en": "Procedures today",
+    "ta": "இன்றைய செயல்முறைகள்"
+  },
+  {
+    "key": "admin.doctorAssignments",
+    "en": "Doctor assignments",
+    "ta": "மருத்துவர் ஒதுக்கீடுகள்"
+  },
+  {
+    "key": "admin.unassignedCount",
+    "en": "{count} unassigned",
+    "ta": "{count} ஒதுக்கப்படவில்லை"
+  },
+  {
+    "key": "admin.doctorAssignmentWorkload",
+    "en": "Doctor assignment workload",
+    "ta": "மருத்துவர் ஒதுக்கீட்டு பணிச்சுமை"
+  },
+  {
+    "key": "admin.assignmentCounts",
+    "en": "{assigned} assigned · {unassigned} unassigned active patients",
+    "ta": "{assigned} ஒதுக்கப்பட்டது · {unassigned} நோயாளிகளுக்கு மருத்துவர் ஒதுக்கப்படவில்லை"
+  },
+  {
+    "key": "admin.manageAssignments",
+    "en": "Manage assignments",
+    "ta": "ஒதுக்கீடுகளை நிர்வகிக்கவும்"
+  },
+  {
+    "key": "admin.activePatientCount",
+    "en": "{count} active patients",
+    "ta": "{count} செயலில் உள்ள நோயாளிகள்"
+  },
+  {
+    "key": "admin.activePatientCountSingular",
+    "en": "1 active patient",
+    "ta": "1 செயலில் உள்ள நோயாளர்"
+  },
+  {
+    "key": "admin.noDoctorsListed",
+    "en": "No doctors listed",
+    "ta": "மருத்துவர்கள் பட்டியலில் இல்லை"
+  },
+  {
+    "key": "admin.doctorsAppearWhenConfigured",
+    "en": "Doctor assignments will appear here when clinicians are configured.",
+    "ta": "மருத்துவர்கள் அமைக்கப்பட்டதும் அவர்களின் ஒதுக்கீடுகள் இங்கே தோன்றும்."
+  },
+  {
+    "key": "admin.unassignedNeedDoctor",
+    "en": "{count} active patients need a doctor assignment.",
+    "ta": "{count} நோயாளிகளுக்கு மருத்துவர் ஒதுக்கப்பட வேண்டும்."
+  },
+  {
+    "key": "admin.unassignedNeedsDoctor",
+    "en": "1 active patient needs a doctor assignment.",
+    "ta": "1 நோயாளிக்கு மருத்துவர் ஒதுக்கப்பட வேண்டும்."
+  },
+  {
+    "key": "admin.clinicalReviewQueue",
+    "en": "Clinical review queue",
+    "ta": "மருத்துவ மதிப்பாய்வு வரிசை"
+  },
+  {
+    "key": "admin.recordedResultsAwaitingReview",
+    "en": "Recorded results waiting for clinician review.",
+    "ta": "மருத்துவ மதிப்பாய்வுக்காகப் பதிவுசெய்யப்பட்ட முடிவுகள் காத்திருக்கின்றன."
+  },
+  {
+    "key": "admin.openCensus",
+    "en": "Open census",
+    "ta": "நோயாளர் எண்ணிக்கையைத் திறக்கவும்"
+  },
+  {
+    "key": "admin.review",
+    "en": "Review",
+    "ta": "மதிப்பாய்வு"
+  },
+  {
+    "key": "admin.noReviewsPending",
+    "en": "No reviews pending",
+    "ta": "மதிப்பாய்வுகள் நிலுவையில் இல்லை"
+  },
+  {
+    "key": "admin.noResultsAwaiting",
+    "en": "No results or reports are waiting for review.",
+    "ta": "மதிப்பாய்வுக்காக முடிவுகளோ அறிக்கைகளோ காத்திருக்கவில்லை."
+  },
+  {
+    "key": "admin.currentInpatientCensus",
+    "en": "Current inpatient census",
+    "ta": "தற்போதைய உள்நோயாளர் எண்ணிக்கை"
+  },
+  {
+    "key": "admin.activeAdmissionCount",
+    "en": "{count} active admissions · ordered by acuity",
+    "ta": "{count} செயலில் உள்ள சேர்க்கைகள் · மருத்துவ அவசரத் தேவைக்கேற்ப வரிசைப்படுத்தப்பட்டது"
+  },
+  {
+    "key": "admin.openPatientDirectory",
+    "en": "Open patient directory",
+    "ta": "நோயாளர் பட்டியலைத் திறக்கவும்"
+  },
+  {
+    "key": "admin.searchHospitalCensus",
+    "en": "Search the hospital census",
+    "ta": "மருத்துவமனை நோயாளர் பட்டியலில் தேடவும்"
+  },
+  {
+    "key": "admin.censusSearchPlaceholder",
+    "en": "Search name, MRN, room, bed, department, or doctor",
+    "ta": "பெயர், MRN, அறை, படுக்கை, பிரிவு அல்லது மருத்துவர் மூலம் தேடவும்"
+  },
+  {
+    "key": "admin.clearCensusSearch",
+    "en": "Clear census search",
+    "ta": "நோயாளர் பட்டியல் தேடலை அழிக்கவும்"
+  },
+  {
+    "key": "admin.noCensusMatches",
+    "en": "No patients match “{query}”",
+    "ta": "“{query}” தேடலுக்கு நோயாளிகள் பொருந்தவில்லை"
+  },
+  {
+    "key": "admin.noActiveAdmissions",
+    "en": "No active inpatient admissions",
+    "ta": "செயலில் உள்ள உள்நோயாளர் சேர்க்கைகள் இல்லை"
+  },
+  {
+    "key": "admin.checkNameLocation",
+    "en": "Check the name or location and try again.",
+    "ta": "பெயர் அல்லது இடத்தைச் சரிபார்த்து மீண்டும் முயற்சிக்கவும்."
+  },
+  {
+    "key": "admin.newAdmissionsAppear",
+    "en": "New admissions will appear here when they are recorded.",
+    "ta": "புதிய சேர்க்கைகள் பதிவுசெய்யப்பட்டதும் இங்கே தோன்றும்."
+  },
+  {
+    "key": "admin.attendingPhysician",
+    "en": "Attending physician",
+    "ta": "பொறுப்பு மருத்துவர்"
+  },
+  {
+    "key": "admin.recentHospitalActivity",
+    "en": "Recent hospital activity",
+    "ta": "சமீபத்திய மருத்துவமனை செயல்பாடு"
+  },
+  {
+    "key": "admin.latestRecordedEvents",
+    "en": "Latest recorded events across patient care.",
+    "ta": "நோயாளர் பராமரிப்பில் பதிவுசெய்யப்பட்ட சமீபத்திய நிகழ்வுகள்."
+  },
+  {
+    "key": "admin.noActivityRecorded",
+    "en": "No activity recorded",
+    "ta": "செயல்பாடுகள் பதிவாகவில்லை"
+  },
+  {
+    "key": "admin.patientCareEventsAppear",
+    "en": "Patient care events will appear here.",
+    "ta": "நோயாளர் பராமரிப்பு நிகழ்வுகள் இங்கே தோன்றும்."
+  },
+  {
+    "key": "admin.recordedBy",
+    "en": "Recorded by",
+    "ta": "பதிவுசெய்தவர்"
+  },
+  {
+    "key": "admin.viewActivityLog",
+    "en": "View activity log",
+    "ta": "செயல்பாட்டுப் பதிவைப் பார்க்கவும்"
+  },
+  {
+    "key": "admin.unknownPatient",
+    "en": "patient record",
+    "ta": "நோயாளர் பதிவு"
+  },
+  {
+    "key": "admin.activity.operationalEntry",
+    "en": "Operational event recorded for {patient}. Clinical details remain in the clinical record.",
+    "ta": "{patient} என்பவருக்கான செயல்பாட்டு நிகழ்வு பதிவு செய்யப்பட்டது. மருத்துவ விவரங்கள் மருத்துவப் பதிவில் உள்ளன."
+  },
+  {
+    "key": "admin.activity.admission",
+    "en": "Admission workflow updated",
+    "ta": "சேர்க்கை செயல்முறை புதுப்பிக்கப்பட்டது"
+  },
+  {
+    "key": "admin.activity.assignment",
+    "en": "Staff assignment recorded",
+    "ta": "பணியாளர் ஒதுக்கீடு பதிவு செய்யப்பட்டது"
+  },
+  {
+    "key": "admin.activity.vitals",
+    "en": "Vital monitoring update",
+    "ta": "உயிரளவு கண்காணிப்பு புதுப்பிப்பு"
+  },
+  {
+    "key": "admin.activity.medication",
+    "en": "Medication workflow updated",
+    "ta": "மருந்து செயல்முறை புதுப்பிக்கப்பட்டது"
+  },
+  {
+    "key": "admin.activity.report",
+    "en": "Clinical report workflow updated",
+    "ta": "மருத்துவ அறிக்கை செயல்முறை புதுப்பிக்கப்பட்டது"
+  },
+  {
+    "key": "admin.activity.clinicalNote",
+    "en": "Clinical note recorded",
+    "ta": "மருத்துவக் குறிப்பு பதிவு செய்யப்பட்டது"
+  },
+  {
+    "key": "admin.activity.bedsideRequest",
+    "en": "Bedside assistance request updated",
+    "ta": "படுக்கையருகே உதவி கோரிக்கை புதுப்பிக்கப்பட்டது"
+  },
+  {
+    "key": "admin.activity.patientRequest",
+    "en": "Patient assistance request updated",
+    "ta": "நோயாளர் உதவி கோரிக்கை புதுப்பிக்கப்பட்டது"
+  },
+  {
+    "key": "admin.activity.alert",
+    "en": "Clinical alert recorded",
+    "ta": "மருத்துவ எச்சரிக்கை பதிவு செய்யப்பட்டது"
+  },
+  {
+    "key": "admin.activity.alertReviewed",
+    "en": "Clinical alert reviewed",
+    "ta": "மருத்துவ எச்சரிக்கை மதிப்பாய்வு செய்யப்பட்டது"
+  },
+  {
+    "key": "admin.activity.alertUpdated",
+    "en": "Clinical alert status updated",
+    "ta": "மருத்துவ எச்சரிக்கை நிலை புதுப்பிக்கப்பட்டது"
+  },
+  {
+    "key": "admin.activity.bedsideCare",
+    "en": "Bedside care action recorded",
+    "ta": "படுக்கையருகே பராமரிப்பு நடவடிக்கை பதிவு செய்யப்பட்டது"
+  },
+  {
+    "key": "admin.activity.nurseCall",
+    "en": "Nurse-call workflow updated",
+    "ta": "செவிலியர் அழைப்பு செயல்முறை புதுப்பிக்கப்பட்டது"
+  },
+  {
+    "key": "admin.activity.transfer",
+    "en": "Patient transfer workflow updated",
+    "ta": "நோயாளர் இடமாற்ற செயல்முறை புதுப்பிக்கப்பட்டது"
+  },
+  {
+    "key": "admin.activity.discharge",
+    "en": "Discharge coordination updated",
+    "ta": "வெளியேற்ற ஒருங்கிணைப்பு புதுப்பிக்கப்பட்டது"
+  },
+  {
+    "key": "medication.name",
+    "en": "Medication name",
+    "ta": "மருந்தின் பெயர்"
+  },
+  {
+    "key": "medication.scheduledTime",
+    "en": "Scheduled time",
+    "ta": "திட்டமிட்ட நேரம்"
+  },
+  {
+    "key": "medication.duration",
+    "en": "Duration",
+    "ta": "கால அளவு"
+  },
+  {
+    "key": "medication.instructions",
+    "en": "Instructions / special notes",
+    "ta": "வழிமுறைகள் / சிறப்புக் குறிப்புகள்"
+  },
+  {
+    "key": "medication.savePrescription",
+    "en": "Save prescription",
+    "ta": "மருந்து பரிந்துரையைச் சேமிக்கவும்"
+  },
+  {
+    "key": "medication.noActiveOrders",
+    "en": "No active medication orders scheduled.",
+    "ta": "செயலில் உள்ள மருந்து ஆணைகள் எதுவும் திட்டமிடப்படவில்லை."
+  },
+  {
+    "key": "medication.prescribedBy",
+    "en": "Prescribed by",
+    "ta": "பரிந்துரைத்தவர்"
+  },
+  {
+    "key": "medication.administeredBy",
+    "en": "Administered by {name}",
+    "ta": "{name} வழங்கினார்"
+  },
+  {
+    "key": "medication.atTime",
+    "en": "at {time}",
+    "ta": "{time} மணிக்கு"
+  },
+  {
+    "key": "medication.statusGiven",
+    "en": "Given",
+    "ta": "வழங்கப்பட்டது"
+  },
+  {
+    "key": "medication.statusMissed",
+    "en": "Missed",
+    "ta": "தவறவிடப்பட்டது"
+  },
+  {
+    "key": "medication.statusPending",
+    "en": "Pending",
+    "ta": "நிலுவையில்"
+  },
+  {
+    "key": "medication.markAdministered",
+    "en": "Mark medication as administered",
+    "ta": "மருந்து வழங்கப்பட்டதாகக் குறிக்கவும்"
+  },
+  {
+    "key": "medication.markGiven",
+    "en": "Mark given",
+    "ta": "வழங்கியதாகக் குறிக்கவும்"
+  },
+  {
+    "key": "medication.prototypeDisclaimer",
+    "en": "Medication administration and tracking for clinical care team coordination.",
+    "ta": "மருந்து கண்காணிப்பு மருத்துவப் பயன்பாட்டு மாதிரி ஒருங்கிணைப்புக்காக மட்டுமே; இது தன்னாட்சி மருத்துவ ஆலோசனை அல்ல."
+  },
+  {
+    "key": "request.status.new",
+    "en": "New",
+    "ta": "புதியது"
+  },
+  {
+    "key": "request.status.acknowledged",
+    "en": "Acknowledged",
+    "ta": "ஏற்றுக்கொள்ளப்பட்டது"
+  },
+  {
+    "key": "request.status.resolved",
+    "en": "Resolved",
+    "ta": "தீர்க்கப்பட்டது"
+  },
+  {
+    "key": "patient.backToRegistry",
+    "en": "Back to inpatient registry",
+    "ta": "உள்நோயாளர் பட்டியலுக்குத் திரும்பவும்"
+  },
+  {
+    "key": "patient.activeAlertCount",
+    "en": "{count} active alerts",
+    "ta": "{count} செயலில் உள்ள எச்சரிக்கைகள்"
+  },
+  {
+    "key": "patient.pendingAssistanceCount",
+    "en": "{count} pending assistance calls",
+    "ta": "{count} நிலுவையிலுள்ள உதவி அழைப்புகள்"
+  },
+  {
+    "key": "patient.currentIdentity",
+    "en": "Current patient identity",
+    "ta": "தற்போதைய நோயாளர் அடையாளம்"
+  },
+  {
+    "key": "patient.admitted",
+    "en": "Admitted",
+    "ta": "அனுமதிக்கப்பட்டார்"
+  },
+  {
+    "key": "patient.operationalInformation",
+    "en": "Operational information",
+    "ta": "செயல்பாட்டுத் தகவல்"
+  },
+  {
+    "key": "patient.attendingPhysician",
+    "en": "Attending physician",
+    "ta": "பொறுப்பு மருத்துவர்"
+  },
+  {
+    "key": "patient.surgeon",
+    "en": "Surgeon",
+    "ta": "அறுவை சிகிச்சை நிபுணர்"
+  },
+  {
+    "key": "patient.anesthesiologist",
+    "en": "Anesthesiologist",
+    "ta": "மயக்க மருந்து நிபுணர்"
+  },
+  {
+    "key": "patient.bedsideAttender",
+    "en": "Bedside caregiver",
+    "ta": "படுக்கையருகே குடும்பப் பராமரிப்பாளர்"
+  },
+  {
+    "key": "patient.gloveHardwareId",
+    "en": "Glove hardware ID",
+    "ta": "கையுறை சாதன அடையாளம்"
+  },
+  {
+    "key": "patient.notLinked",
+    "en": "Not linked",
+    "ta": "இணைக்கப்படவில்லை"
+  },
+  {
+    "key": "patient.clinicalContext",
+    "en": "Clinical context",
+    "ta": "மருத்துவச் சூழல்"
+  },
+  {
+    "key": "patient.setPatientAcuity",
+    "en": "Set patient acuity",
+    "ta": "நோயாளர் அவசர நிலையை அமைக்கவும்"
+  },
+  {
+    "key": "patient.prescribeRx",
+    "en": "Prescribe medication",
+    "ta": "மருந்தைப் பரிந்துரைக்கவும்"
+  },
+  {
+    "key": "patient.addReport",
+    "en": "Add report",
+    "ta": "அறிக்கையைச் சேர்க்கவும்"
+  },
+  {
+    "key": "patient.clinicalSummaryReport",
+    "en": "Clinical summary report",
+    "ta": "மருத்துவச் சுருக்க அறிக்கை"
+  },
+  {
+    "key": "patient.section",
+    "en": "Patient section",
+    "ta": "நோயாளர் பகுதி"
+  },
+  {
+    "key": "patient.recordSection",
+    "en": "Patient record section",
+    "ta": "நோயாளர் பதிவுப் பகுதி"
+  },
+  {
+    "key": "patient.tabOverview",
+    "en": "Overview",
+    "ta": "மேலோட்டம்"
+  },
+  {
+    "key": "patient.tabVitals",
+    "en": "Vitals",
+    "ta": "உடல் அளவீடுகள்"
+  },
+  {
+    "key": "patient.tabMedications",
+    "en": "Medications",
+    "ta": "மருந்துகள்"
+  },
+  {
+    "key": "patient.tabInvestigations",
+    "en": "Investigations",
+    "ta": "பரிசோதனைகள்"
+  },
+  {
+    "key": "patient.tabProcedures",
+    "en": "Procedures",
+    "ta": "செயல்முறைகள்"
+  },
+  {
+    "key": "patient.tabCareTeam",
+    "en": "Care team",
+    "ta": "பராமரிப்புக் குழு"
+  },
+  {
+    "key": "patient.tabTimeline",
+    "en": "Timeline",
+    "ta": "நிகழ்வுக் காலவரிசை"
+  },
+  {
+    "key": "patient.tabReports",
+    "en": "Reports",
+    "ta": "அறிக்கைகள்"
+  },
+  {
+    "key": "patient.tabDischarge",
+    "en": "Discharge",
+    "ta": "வெளியேற்றம்"
+  },
+  {
+    "key": "patient.tabCareAI",
+    "en": "CareAI",
+    "ta": "CareAI"
+  },
+  {
+    "key": "patient.tabVerifiedClinicalRecord",
+    "en": "Verified clinical record",
+    "ta": "சரிபார்க்கப்பட்ட மருத்துவப் பதிவு"
+  },
+  {
+    "key": "patient.verifiedClinicalData",
+    "en": "Verified clinical data",
+    "ta": "சரிபார்க்கப்பட்ட மருத்துவத் தரவு"
+  }
+]

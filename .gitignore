@@ -1,41 +1,42 @@
-# Dependencies and generated build artifacts
-node_modules/
-dist/
-.vite/
-coverage/
-playwright-report/
-test-results/
+# Logs
+logs
 *.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
 
-# Environment configuration and secrets
+node_modules
+dist
+dist-ssr
+*.local
 .env
 .env.*
 !.env.example
+
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Secrets & sensitive hardware credentials
 secrets.h
-**/secrets.h
-credentials.json
-credentials.*.json
-service-account*.json
 *.pem
 *.key
-*.p12
-*.pfx
-*.keystore
-*.jks
-*.crt
-*.cer
+*.cert
+temp_prompt.txt
+temp_*
+.vercel
+.chrome-real-verify
+.chrome-verify
+scripts/*.png
 
-# Local/editor/OS files
-.DS_Store
-Thumbs.db
-*.local
-.idea/
-.vscode/
 
-# Local databases and potentially sensitive exports
-*.sqlite
-*.sqlite3
-*.db
-private-data/
-patient-records/
-exports/
+

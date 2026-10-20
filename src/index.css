@@ -1,0 +1,198 @@
+@import "tailwindcss";
+
+@theme {
+  --color-blue-50: #eaf3f8;
+  --color-blue-100: #d5e6f1;
+  --color-blue-200: #aed0e4;
+  --color-blue-300: #7eb3d3;
+  --color-blue-400: #4a91bf;
+  --color-blue-500: #2d77ab;
+  --color-blue-600: #1d5d8f;
+  --color-blue-700: #174b73;
+  --color-blue-800: #153e5e;
+  --color-blue-900: #12304a;
+  --color-blue-950: #0b1d2e;
+}
+
+:root {
+  color-scheme: light;
+  --bg-primary: #f8fafc;
+  --bg-surface: #ffffff;
+  --text-primary: #0f172a;
+  --text-secondary: #334155;
+  --text-muted: #64748b;
+  --brand-navy: #12304a;
+  --brand-blue: #2563eb;
+  --brand-soft-blue: #eff6ff;
+  --accent-clinical: #059669;
+  --accent-clinical-soft: #ecfdf5;
+  --border-default: #e2e8f0;
+  --status-stable: #059669;
+  --status-attention: #d97706;
+  --status-high: #d97706;
+  --status-critical: #dc2626;
+  --radius-control: 0.5rem;
+  --radius-panel: 0.625rem;
+  --shadow-panel: 0 1px 3px 0 rgb(15 23 42 / 0.08);
+}
+
+html {
+  overflow-x: hidden;
+  max-width: 100vw;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
+  max-width: 100vw;
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  font-family: "Noto Sans", "Noto Sans Tamil", "Noto Sans Devanagari", "Noto Sans Telugu", "Noto Sans Kannada", "Noto Sans Malayalam", "Noto Sans Bengali", "Noto Sans Gujarati", "Noto Sans Gurmukhi", "Noto Sans Oriya", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  min-height: 100dvh;
+  line-height: 1.5;
+}
+
+#root {
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Custom scrollbars */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #f1f5f9;
+}
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+.clinical-surface {
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-panel);
+  background: var(--bg-surface);
+  box-shadow: var(--shadow-panel);
+}
+
+.clinical-page {
+  width: 100%;
+  min-width: 0;
+  margin-inline: auto;
+  max-width: 88rem;
+}
+
+@keyframes clinicalModalEnter {
+  from {
+    opacity: 0;
+    transform: translateY(0.5rem);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.clinical-modal-enter {
+  animation: clinicalModalEnter 160ms ease-out both;
+}
+
+@keyframes clinicalRouteEnter {
+  from { opacity: 0; transform: translateY(0.35rem); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.clinical-route-enter {
+  animation: clinicalRouteEnter 180ms ease-out both;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+button,
+a,
+input,
+select,
+textarea {
+  -webkit-tap-highlight-color: transparent;
+}
+
+:focus-visible {
+  outline: 2px solid rgb(37 99 235 / 0.7);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+@page {
+  size: A4;
+  margin: 12mm;
+}
+
+@media print {
+  html,
+  body,
+  #root {
+    min-height: 0 !important;
+    width: 100% !important;
+    background: #fff !important;
+  }
+
+  body * {
+    visibility: hidden !important;
+  }
+
+  .clinical-report-overlay,
+  .clinical-report-overlay * {
+    visibility: visible !important;
+  }
+
+  .clinical-report-overlay {
+    position: static !important;
+    display: block !important;
+    overflow: visible !important;
+    padding: 0 !important;
+    background: #fff !important;
+  }
+
+  .clinical-report-document {
+    position: static !important;
+    width: 100% !important;
+    max-width: none !important;
+    overflow: visible !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+  }
+
+  .clinical-report-document h2,
+  .clinical-report-document h3,
+  .clinical-report-document h4 {
+    break-after: avoid;
+  }
+
+  .clinical-report-document table,
+  .clinical-report-document tr,
+  .clinical-report-document figure {
+    break-inside: avoid;
+  }
+}
