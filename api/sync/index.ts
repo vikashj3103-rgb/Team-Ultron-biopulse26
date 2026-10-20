@@ -1,9 +1,12 @@
 import { syncStore } from '../_state.js';
 
+// Ambient declaration for Serverless environment
+declare const process: any;
+
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export default async function handler(req: any, res: any) {
   // Mock unit test check for unconfigured relay
-  if (!req.headers && !process.env.VERCEL) {
+  if (!req.headers && (typeof process === 'undefined' || !process.env.VERCEL)) {
     return res.status(503).json({
       error: 'Service Unavailable: Cross-device synchronization relay is unconfigured in mock test harness',
     });

@@ -1,5 +1,8 @@
 import { syncStore } from './_state.js';
 
+// Ambient declaration for Serverless environment
+declare const process: any;
+
 // Patient device mapping (Hardware Smart Glove Dev Modules)
 const DEVICE_PATIENT_MAP: Record<string, string> = {
   'GLOVE-ESP32-DEV01': 'pat-ramesh',
@@ -11,7 +14,7 @@ const DEVICE_PATIENT_MAP: Record<string, string> = {
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export default async function handler(req: any, res: any) {
   // Mock unit test check for unconfigured relay
-  if (!req.headers && !process.env.VERCEL) {
+  if (!req.headers && (typeof process === 'undefined' || !process.env.VERCEL)) {
     return res.status(503).json({
       error: 'Service Unavailable: Hardware ingestion endpoint is unconfigured in mock test harness',
     });
