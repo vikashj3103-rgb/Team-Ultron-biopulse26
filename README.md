@@ -119,9 +119,10 @@ Keep the tunnel process running. A Quick Tunnel hostname may change between sess
 
 ## Repository contents
 
-- `firmware/smart-glove/healthconnect_smart_glove.ino` — ESP32 firmware adapted to send app events instead of Gmail.
-- `firmware/smart-glove/secrets.example.h` — Wi-Fi configuration template; copy to a local `secrets.h`.
-- `firmware/README.md` — board setup, endpoint configuration, and testing instructions.
+- `firmware/smart-glove/healthconnect_smart_glove.ino` — ESP32 firmware adapted to send in-app request events instead of Gmail.
+- `firmware/smart-glove-dht22-demo/smart_glove_dht22_demo.ino` — uploaded ESP32 variant with three flex gestures, DHT22 temperature/humidity, LCD, buzzer, and email alerts. HR/SpO2 are randomized demo values, not sensor measurements.
+- `firmware/smart-glove-dht22-demo/README.md` and `secrets.example.h` — setup notes and a local credentials template for the DHT22/email variant.
+- `firmware/smart-glove/secrets.example.h` and `firmware/README.md` — app-event glove setup and testing instructions.
 - `docs/GLOVE-INTEGRATION.md` — integration and networking guide.
 - `docs/DEMO-WORKFLOW.md` — suggested demonstration flow.
 - `.gitignore` — excludes local credentials, build outputs, and test artifacts.
