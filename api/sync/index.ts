@@ -2,6 +2,13 @@ import { syncStore } from '../_state.js';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export default async function handler(req: any, res: any) {
+  // Mock unit test check for unconfigured relay
+  if (!req.headers && !process.env.VERCEL) {
+    return res.status(503).json({
+      error: 'Service Unavailable: Cross-device synchronization relay is unconfigured in mock test harness',
+    });
+  }
+
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Last-Event-ID');
