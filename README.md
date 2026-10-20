@@ -1,54 +1,83 @@
 # HealthConnect — Connected Hospital Care Platform
 
-> **Evaluation repository for the HealthConnect / CareConnect project**  
-> Assistive communication, smart-glove events, patient telemetry, clinical alerts, caregiver coordination, and indoor hospital wayfinding.
+> **Judge evaluation repository** for HealthConnect / CareConnect: assistive communication, smart-glove events, patient telemetry, clinical alerts, caregiver coordination, and hospital indoor wayfinding.
 
-## Judge access
+## Evaluation links
 
-- **Source code:** https://github.com/vikashj3103-rgb/Team-Ultron-biopulse26
-- **Live web app:** Not yet published as a stable public deployment. The repository link opens the source code; it does not itself launch the application.
-- **Local evaluator run:** Follow [Quick start](#quick-start) below.
-- **Suggested evaluation flow:** Open the app → sign in with an approved demo role → open Clinical Operations → select a synthetic patient → trigger a request or vital event → confirm the correct Doctor and Attender views update.
+- **GitHub repository:** https://github.com/vikashj3103-rgb/Team-Ultron-biopulse26
+- **Live web app:** **Not published from this repository yet.** No stable public application URL is currently configured here.
+- **Current evaluation status:** The repository contains firmware, documentation, and Vite configuration, but the application source directory (`src/`) is missing from the current `main` branch. The current `index.html` imports `/src/main.tsx`, so a clone of this branch cannot build/run the actual web app yet.
 
-> **Important deployment note:** The current cross-device synchronization and `/api/patient-events` hardware gateway are implemented in the Vite development-server plugin (`vite.config.ts`). A static Vercel build alone does not run that middleware. Before using a public deployment for judging, move the API/SSE gateway to a persistent server or another supported backend and verify the deployed endpoints end to end.
+### Required before judges can use the web app
+
+1. Commit the complete working HealthConnect frontend source to this repository, including `src/`, all referenced assets, styles, services, components, pages, and any required configuration files. Do not commit `node_modules`, `dist`, real patient data, secrets, or credentials.
+2. Run `npm ci` (or `npm install` if the lockfile needs to be updated), `npm run build`, `npm run lint`, and `npm test` in that full source checkout.
+3. Deploy the frontend to a stable public host and add the verified URL above. A GitHub repository link alone does not launch a running application.
+4. Deploy the synchronization/API endpoints separately or to a persistent backend. The current SSE relay and `POST /api/patient-events` gateway are implemented inside the Vite development-server plugin; a static Vercel deployment will not run those middleware handlers.
+5. Test the deployed link from a separate network and verify the Doctor, Attender, Admin, and glove event flows before submitting it for evaluation.
+
+> Do not send judges a localhost URL. A Cloudflare Quick Tunnel is temporary and only works while the laptop server and tunnel remain running. It is not a stable deployment.
 
 ## Project overview
 
-HealthConnect is an academic healthcare technology project exploring how assistive communication, patient-specific telemetry, alerts, caregiver requests, and hospital navigation can be coordinated in one web platform.
+HealthConnect is an academic healthcare technology project exploring how assistive communication, patient-specific telemetry, alerts, caregiver requests, and hospital navigation can be coordinated through a connected web platform.
 
-The project includes:
-- **Doctor workstation:** assigned patient overview, vital readings, clinical alerts, patient charts, and alert acknowledgement.
+### Planned and documented capabilities
+
+- **Doctor workstation:** assigned-patient overview, vital readings, clinical alerts, patient charts, and alert acknowledgement.
 - **Attender portal:** patient status, bedside requests, caregiver support actions, care-team context, and approved health information.
-- **Clinical Operations:** controlled telemetry scenarios and event injection for evaluation.
+- **Clinical Operations:** controlled telemetry scenarios and event injection for software evaluation.
 - **Smart-glove integration:** ESP32 Dev Module firmware for three flex-sensor event types—Emergency, Water, and Food.
 - **Telemetry and alerts:** patient-scoped reading history, threshold-driven alert flow, acknowledgement, response, and resolution states.
-- **Hospital wayfinding:** interactive multi-floor 3D map with a 2D blueprint option and turn-by-turn route guidance.
+- **Hospital wayfinding:** interactive multi-floor 3D map with a 2D blueprint option and route guidance.
 - **Localization:** English, Hindi, Tamil, and Telugu interface dictionaries.
-- **Bedside camera UI:** supports a laptop/USB webcam flow where browser permissions and device availability allow.
+- **Bedside camera UI:** intended to support a laptop/USB webcam where browser permissions and hardware permit.
 
-Use **synthetic data only**. This project is a demonstration/research prototype, not a certified medical device or a production clinical record system. Simulated readings must not be used for clinical decisions.
+These are the project capabilities described in the documentation; they should not be treated as independently verified from the current incomplete source checkout.
 
-## Quick start
+## Technology
 
-### Requirements
-- Node.js version compatible with the Vite version in `package.json` (use a current supported Node.js LTS release).
-- npm.
-- For optional hardware testing: Arduino IDE / ESP32 board package and a configured ESP32 Dev Module.
+- React and TypeScript
+- Vite and Tailwind CSS
+- Supabase client dependency (configuration and backend readiness must be verified for the complete app)
+- Server-Sent Events (SSE) middleware currently configured in `vite.config.ts` for local cross-device synchronization
+- ESP32 Dev Module firmware using Wi-Fi and flex sensors
+- SVG and CSS 3D techniques for hospital wayfinding
 
-### Install and run
+## Smart-glove firmware
+
+Firmware and wiring notes are in [firmware/README.md](firmware/README.md), with integration details in [docs/GLOVE-INTEGRATION.md](docs/GLOVE-INTEGRATION.md). The current three-sensor sketch maps:
+- GPIO 34 → Emergency
+- GPIO 35 → Water
+- GPIO 32 → Food
+
+Medicine and Nurse may be available through software scenarios, but they are not mapped to these three physical sensors. Create a local secrets header from `secrets.example.h`; never commit Wi-Fi credentials or tokens. Hardware-to-app delivery still needs validation on the assembled board and the actual running backend.
+
+## System workflow for evaluation after deployment
+
+1. Open the hosted application and sign in with the evaluation access provided by the team.
+2. Open Clinical Operations and select a synthetic patient.
+3. Trigger a Food or Water request and confirm the exact request type appears in that patient’s Attender view.
+4. Trigger a vital scenario such as BP elevation or an SpO₂ drop.
+5. Open the authorized Doctor view and inspect the matching patient’s alert and telemetry graph.
+6. Acknowledge the alert, follow the response workflow, and resolve it explicitly.
+7. Repeat with a second synthetic patient to verify the first patient’s events do not alter the second patient.
+8. Optionally demonstrate the hospital map and language selector.
+
+## Local development (after the full source is committed)
+
+The commands below are the intended Vite workflow but **will not work from the current checkout until `src/` and all application files are added**.
 
 ```bash
 git clone https://github.com/vikashj3103-rgb/Team-Ultron-biopulse26.git
 cd Team-Ultron-biopulse26
-npm install
+npm ci
 npm run dev -- --host 0.0.0.0 --port 3001
 ```
 
-Open http://localhost:3001.
+Open http://localhost:3001 after the complete application source is present.
 
-The Vite server also hosts the current local synchronization relay on port 3001. Keep the server process running while testing multiple browsers/devices.
-
-### Build and checks
+### Intended quality checks
 
 ```bash
 npm run build
@@ -56,87 +85,33 @@ npm run lint
 npm test
 ```
 
-A successful build verifies compilation and bundling; it does not by itself prove that deployed multi-device synchronization or physical hardware integration works.
+A successful build proves compilation and bundling, not end-to-end deployment, realtime synchronization, or physical hardware operation.
 
-## Evaluator walkthrough
+## Deployment and security notes
 
-1. Start the application using the commands above.
-2. Sign in using the demo/role access provided by the project team. Do not assume public credentials are enabled.
-3. Open **Clinical Operations** from the administrator interface.
-4. Select one synthetic patient and trigger a **Food** or **Water** request.
-5. Open that patient’s Attender view and confirm the request type and patient attribution.
-6. Trigger a clinical scenario such as a BP elevation or SpO₂ drop.
-7. Open the authorized Doctor view and inspect the patient’s alert and telemetry graph.
-8. Acknowledge the alert, follow the response workflow, and resolve it explicitly.
-9. Repeat with a different synthetic patient to verify that patient A’s event does not update patient B.
-10. Optionally test the hospital map and language selector.
-
-For a fair evaluation, verify the same workflow in separate browser sessions. Confirm that events carry a patient ID, that Food remains Food and Water remains Water, and that alerts do not silently resolve.
-
-## System architecture
-
-```text
-ESP32 Smart Glove ──HTTP event──┐
-                               ▼
-Admin Clinical Operations → Event / Telemetry Processing
-                               ▼
-                     Patient-scoped data layer
-                               ▼
-                     Realtime synchronization
-                      ┌────────┴────────┐
-                      ▼                 ▼
-                Doctor Workstation  Attender Portal
-                      │                 │
-                      └──── alerts / requests ────┘
-```
-
-The glove and software simulation are intended to use the same event-processing contract. Every event should retain a stable patient identifier and explicit event type throughout processing.
-
-## Smart-glove firmware
-
-Firmware and wiring notes are in [firmware/README.md](firmware/README.md). The current three-sensor firmware maps:
-- GPIO 34 → Emergency
-- GPIO 35 → Water
-- GPIO 32 → Food
-
-Other request types may be available through software simulation but are **not** mapped to these three physical sensors. Review [firmware/smart-glove](firmware/smart-glove) and create a local secrets file from the provided example. Never commit Wi-Fi credentials or tokens.
-
-## Configuration and deployment
-
-- Keep secrets in local ignored files or deployment environment variables. Never commit `.env`, `secrets.h`, Supabase service-role keys, access tokens, or real patient data.
-- Vercel’s current configuration builds the Vite frontend and rewrites routes to `index.html`; it does not automatically host the custom middleware defined in `vite.config.ts`.
-- For a public judge URL with multi-device synchronization, deploy a supported persistent API/SSE service or use a suitable managed realtime backend, configure the frontend to call it, and test from a separate network.
-- A Cloudflare Quick Tunnel is temporary and normally changes URL when restarted. It exposes the local machine while running; it is not the same as a stable hosted deployment.
+- `vercel.json` is configured for a Vite frontend build and client-side route fallback. It does not host the custom server middleware inside `vite.config.ts`.
+- `/api/sync/stream`, `/api/sync/state`, `/api/sync`, and `/api/patient-events` need a running compatible server/backend. Do not assume those endpoints exist in static hosting.
+- Keep `.env`, `secrets.h`, Wi-Fi passwords, API tokens, Supabase service-role keys, and real patient data out of Git.
 - Do not expose an unauthenticated administrator console or hardware-ingestion endpoint to the public internet.
-
-## Screenshots and evidence
-
-Place approved screenshots in `docs/screenshots/` and link them here. Use synthetic patient records only. Do not commit identifiable patient information, secrets, or screenshots showing private credentials.
+- Use synthetic patient records only. This is an academic demonstration/research project, not a certified medical device or production clinical record system. Simulated readings must not be used for clinical decisions.
 
 ## Troubleshooting
 
-**Port 3001 is already in use**
+**Port 3001 already in use (Windows)**
 
-Check the existing server before starting another copy:
-
-Windows:
 ```cmd
 netstat -ano | findstr :3001
 ```
 
-If the existing application is working, open http://localhost:3001 rather than launching a duplicate server.
+If the existing application is already running, open http://localhost:3001 rather than launching a duplicate server.
 
 **A second device cannot synchronize**
 
-Confirm both devices use the same reachable server URL, that the server is running, and that `/api/sync/stream` and `/api/sync/state` are available on that same origin. Static frontend hosting alone will not provide the development-server middleware.
+Confirm the devices use the same reachable server URL and that `/api/sync/stream` and `/api/sync/state` are served by the backend. Static frontend hosting alone is insufficient.
 
 **The glove sends no request**
 
-Check ESP32 Wi-Fi connectivity, configured endpoint URL, device-to-patient mapping, Serial Monitor output, and the HTTP response. See [glove integration instructions](docs/GLOVE-INTEGRATION.md).
-
-**Language or page route looks blank**
-
-Refresh the app, confirm the build is current, and check browser-console errors. Client-side route rewriting is included in `vercel.json`; API routes still require a backend.
+Check ESP32 Wi-Fi, configured endpoint URL, device-to-patient mapping, Serial Monitor output, and the HTTP response. See [glove integration instructions](docs/GLOVE-INTEGRATION.md).
 
 ## Project documents
 
@@ -144,15 +119,8 @@ Refresh the app, confirm the build is current, and check browser-console errors.
 - [Glove integration](docs/GLOVE-INTEGRATION.md)
 - [Firmware setup](firmware/README.md)
 
-## Limitations and honest evaluation notes
-
-- The configured live public URL is not included yet.
-- The local Vite relay is development-server middleware and must be replaced or separately hosted for a production-style deployment.
-- The physical ESP32/glove should be verified on actual hardware before claiming the end-to-end hardware path is proven.
-- The interface and telemetry scenarios are for academic demonstration only and are not a substitute for validated medical devices or clinical judgment.
-
 ## Team
 
 **Project:** HealthConnect / CareConnect  
-**Owner:** Vikash J and team  
+**Team:** Team Ultron — BioPulse 26  
 **Repository:** https://github.com/vikashj3103-rgb/Team-Ultron-biopulse26
