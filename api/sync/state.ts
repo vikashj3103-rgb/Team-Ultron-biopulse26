@@ -1,4 +1,4 @@
-import { syncStore } from '../_state';
+import { syncStore } from '../_state.js';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export default async function handler(req: any, res: any) {

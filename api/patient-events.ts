@@ -1,4 +1,4 @@
-import { syncStore } from './_state';
+import { syncStore } from './_state.js';
 
 // Patient device mapping (Hardware Smart Glove Dev Modules)
 const DEVICE_PATIENT_MAP: Record<string, string> = {
