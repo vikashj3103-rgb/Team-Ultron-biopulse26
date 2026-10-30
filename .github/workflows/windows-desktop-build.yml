@@ -54,9 +54,17 @@ jobs:
 
       - name: Build frontend production bundle
         run: npm run build
+        env:
+          VITE_DEMO_MODE: 'true'
+          VITE_SUPABASE_URL: https://careconnect-demo.supabase.co
+          VITE_SUPABASE_ANON_KEY: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.e30.demo-anon-key-placeholder
 
       - name: Build Tauri 2 Windows Application & Installers
         run: npx tauri build --target x86_64-pc-windows-msvc
+        env:
+          VITE_DEMO_MODE: 'true'
+          VITE_SUPABASE_URL: https://careconnect-demo.supabase.co
+          VITE_SUPABASE_ANON_KEY: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.e30.demo-anon-key-placeholder
 
       - name: Inspect generated bundle artifacts
         shell: pwsh

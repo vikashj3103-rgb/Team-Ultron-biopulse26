@@ -42,6 +42,9 @@ scripts/*.png
 src-tauri/target/
 src-tauri/gen/
 supabase/.temp/
+dist-desktop/
+*.msi
+*.exe
 
 
 

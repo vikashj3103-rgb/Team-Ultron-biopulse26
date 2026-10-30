@@ -12,6 +12,7 @@
   "app": {
     "windows": [
       {
+        "label": "main",
         "title": "CareConnect Clinical Platform",
         "width": 1280,
         "height": 800,
