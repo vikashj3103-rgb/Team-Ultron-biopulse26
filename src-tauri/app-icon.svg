@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512">
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0F172A"/>
+      <stop offset="100%" stop-color="#1E3A8A"/>
+    </linearGradient>
+    <linearGradient id="pulseGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#38BDF8"/>
+      <stop offset="50%" stop-color="#60A5FA"/>
+      <stop offset="100%" stop-color="#34D399"/>
+    </linearGradient>
+    <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="8" result="blur"/>
+      <feComposite in="SourceGraphic" in2="blur" operator="over"/>
+    </filter>
+  </defs>
+
+  <!-- Rounded App Background -->
+  <rect width="512" height="512" rx="128" fill="url(#bgGrad)"/>
+  
+  <!-- Outer Medical Shield Contour -->
+  <path d="M256 64 C336 64 416 88 416 128 C416 264 344 384 256 448 C168 384 96 264 96 128 C96 88 176 64 256 64 Z" 
+        fill="#1E293B" stroke="#3B82F6" stroke-width="8" opacity="0.6"/>
+
+  <!-- Hospital Cross Center -->
+  <path d="M224 160 H288 V224 H352 V288 H288 V352 H224 V288 H160 V224 H224 Z" 
+        fill="#2563EB" opacity="0.85"/>
+
+  <!-- Realtime Telemetry Pulse Line -->
+  <path d="M80 256 H176 L208 192 L240 320 L272 160 L304 336 L336 256 H432" 
+        fill="none" stroke="url(#pulseGrad)" stroke-width="16" stroke-linecap="round" stroke-linejoin="round" filter="url(#glow)"/>
+
+  <!-- Vital Heart Pulse Accent -->
+  <circle cx="272" cy="160" r="10" fill="#34D399"/>
+</svg>

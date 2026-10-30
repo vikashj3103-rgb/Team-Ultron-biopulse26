@@ -1,10 +1,12 @@
 import { syncStore } from '../_state.js';
+import { denyIfDemoRelayDisabled } from '../_security.js';
 
 // Ambient declaration for Serverless environment
 declare const process: any;
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export default async function handler(req: any, res: any) {
+  if (denyIfDemoRelayDisabled(res)) return;
   // Mock unit test check for unconfigured relay
   if (!req.headers && (typeof process === 'undefined' || !process.env.VERCEL)) {
     return res.status(503).json({

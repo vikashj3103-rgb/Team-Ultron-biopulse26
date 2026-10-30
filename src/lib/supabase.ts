@@ -1,16 +1,18 @@
 import { createClient } from '@supabase/supabase-js';
 
-const supabaseUrl = (typeof import.meta !== 'undefined' && import.meta.env?.VITE_SUPABASE_URL) || 'https://careconnect-demo.supabase.co';
-const supabaseAnonKey = (typeof import.meta !== 'undefined' && import.meta.env?.VITE_SUPABASE_ANON_KEY) || 'demo-anon-key-placeholder';
+const env = typeof import.meta !== 'undefined' ? import.meta.env : undefined;
+const configuredUrl = env?.VITE_SUPABASE_URL?.trim();
+const configuredAnonKey = env?.VITE_SUPABASE_ANON_KEY?.trim();
+const supabaseUrl = configuredUrl || 'http://127.0.0.1:54321';
+const supabaseAnonKey = configuredAnonKey || 'local-supabase-not-configured';
 
 export const isSupabaseConfigured = (): boolean => {
+  const localDevelopmentUrl = Boolean(env?.DEV && /^http:\/\/(localhost|127\.0\.0\.1)(:\d+)?\/?$/i.test(supabaseUrl));
   return (
-    typeof supabaseUrl === 'string' &&
-    supabaseUrl.startsWith('https://') &&
-    !supabaseUrl.includes('careconnect-demo.supabase.co') &&
-    typeof supabaseAnonKey === 'string' &&
+    Boolean(configuredUrl && configuredAnonKey) &&
+    (supabaseUrl.startsWith('https://') || localDevelopmentUrl) &&
     supabaseAnonKey.length > 20 &&
-    !supabaseAnonKey.includes('placeholder')
+    !/placeholder|not-configured|your-project|example|your-anon-key/i.test(`${supabaseUrl} ${supabaseAnonKey}`)
   );
 };
 

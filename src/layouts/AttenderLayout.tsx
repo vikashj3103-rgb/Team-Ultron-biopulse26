@@ -88,7 +88,14 @@ export const AttenderLayout: React.FC = () => {
   return (
     <div className="min-h-screen flex flex-col bg-[#F8FAFC] text-[#0F172A] pb-20 xl:pb-0">
       {/* Attender Clean Rebalanced Top Navigation */}
-      <header className="sticky top-0 z-30 bg-white border-b border-[#E2E8F0] shadow-2xs">
+      <header
+        style={{
+          paddingTop: 'env(safe-area-inset-top, 0px)',
+          paddingLeft: 'env(safe-area-inset-left, 0px)',
+          paddingRight: 'env(safe-area-inset-right, 0px)',
+        }}
+        className="sticky top-0 z-30 bg-white border-b border-[#E2E8F0] shadow-2xs"
+      >
         <div className="mx-auto flex min-h-16 w-full max-w-screen-2xl items-center justify-between gap-2 px-3 py-2 sm:px-6 xl:px-8">
           {/* Brand + Attender Patient Context */}
           <div className="flex items-center gap-2.5 sm:gap-3" data-tour="attender-patient-header">
@@ -98,7 +105,7 @@ export const AttenderLayout: React.FC = () => {
               data-tour="header-hamburger"
               aria-label="Toggle navigation"
               aria-expanded={sidebarOpen}
-              className="flex h-10 w-10 min-h-[40px] min-w-[40px] shrink-0 items-center justify-center rounded-lg border border-[#CBD5E1] bg-white text-[#0F172A] hover:bg-[#F8FAFC] transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500/20 shadow-2xs"
+              className="flex h-11 w-11 min-h-[44px] min-w-[44px] shrink-0 items-center justify-center rounded-lg border border-[#CBD5E1] bg-white text-[#0F172A] hover:bg-[#F8FAFC] transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500/20 shadow-2xs"
             >
               <Menu className="w-5 h-5 text-[#0F172A]" />
             </button>
@@ -388,12 +395,12 @@ export const AttenderLayout: React.FC = () => {
           <div
             onClick={() => setShowMoreMenu(false)}
             aria-label={t('nav.closeFamilyMore')}
-            className="fixed inset-0 z-40 bg-slate-950/40 lg:hidden"
+            className="fixed inset-0 z-40 bg-slate-950/40 xl:hidden"
           />
           <nav
             id="attender-mobile-more-menu"
             aria-label={t('nav.familyMoreMenu')}
-            className="fixed inset-x-3 bottom-[calc(66px+env(safe-area-inset-bottom,0px))] z-40 grid grid-cols-2 gap-2 rounded-2xl border border-slate-200 bg-white p-3 shadow-2xl lg:hidden animate-in fade-in slide-in-from-bottom-2 duration-150"
+            className="fixed inset-x-3 bottom-[calc(66px+env(safe-area-inset-bottom,0px))] z-40 grid grid-cols-2 gap-2 rounded-2xl border border-slate-200 bg-white p-3 shadow-2xl xl:hidden animate-in fade-in slide-in-from-bottom-2 duration-150"
           >
             <NavLink to="/attender/reports" onClick={() => setShowMoreMenu(false)} className="flex min-h-[44px] items-center gap-2 rounded-xl border border-slate-200 px-3 text-xs font-semibold text-slate-800 hover:bg-slate-50">
               <FileText className="h-4 w-4 text-slate-500" aria-hidden="true" />

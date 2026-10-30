@@ -1,8 +1,26 @@
+import { isDemoRelayEnabled } from '../_security.js';
+
 export const config = {
   runtime: 'edge',
 };
 
 export default function handler(req: Request) {
+  if (!isDemoRelayEnabled()) {
+    return new Response(
+      JSON.stringify({
+        success: false,
+        error: 'The in-memory synchronization relay is disabled. Use a tenant-scoped clinical data service.',
+      }),
+      {
+        status: 503,
+        headers: {
+          'Content-Type': 'application/json',
+          'Access-Control-Allow-Origin': '*',
+        },
+      }
+    );
+  }
+
   if (req.method === 'OPTIONS') {
     return new Response(null, {
       status: 200,

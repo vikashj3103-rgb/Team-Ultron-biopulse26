@@ -6,6 +6,7 @@ import { DoctorLayout } from './layouts/DoctorLayout';
 import { AttenderLayout } from './layouts/AttenderLayout';
 import { UserRole } from './types';
 import { useLanguage, t as translate } from './i18n';
+import { DEMO_MODE_ENABLED } from './services/runtimeMode';
 
 const LoginPage = React.lazy(() => import('./pages/LoginPage').then((module) => ({ default: module.LoginPage })));
 const ProfilePage = React.lazy(() => import('./pages/ProfilePage').then((module) => ({ default: module.ProfilePage })));
@@ -75,16 +76,45 @@ class RouteErrorBoundary extends React.Component<React.PropsWithChildren, { hasE
   }
 }
 
+const ClinicalDataMigrationNotice: React.FC = () => {
+  const { currentUser, membership, logout } = useAuth();
+  return (
+    <main className="flex min-h-screen items-center justify-center bg-slate-50 p-6">
+      <section className="w-full max-w-xl rounded-2xl border border-slate-200 bg-white p-6 shadow-sm" role="status">
+        <p className="text-xs font-bold uppercase tracking-wide text-indigo-700">Verified hospital account</p>
+        <h1 className="mt-2 text-xl font-bold text-slate-900">Clinical records are not connected yet</h1>
+        <p className="mt-3 text-sm leading-6 text-slate-600">
+          {currentUser?.name} is signed in to {membership?.hospitalName || 'the hospital'} as {membership?.role || 'a hospital user'}.
+          The current clinical records are still held in a local simulation store, so this workspace stays closed until its
+          tenant-scoped Supabase data adapter is connected.
+        </p>
+        <button
+          type="button"
+          onClick={logout}
+          className="mt-5 min-h-11 rounded-lg bg-slate-900 px-4 text-sm font-semibold text-white hover:bg-slate-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-indigo-600"
+        >
+          Sign out
+        </button>
+      </section>
+    </main>
+  );
+};
+
 // Protected Route Guard
 const ProtectedRoute: React.FC<{ children: React.ReactNode; allowedRoles?: UserRole[] }> = ({
   children,
   allowedRoles,
 }) => {
-  const { isAuthenticated, role } = useAuth();
+  const { isAuthenticated, isLoading, isDemoSession, role } = useAuth();
+
+  if (isLoading) return <RouteLoadingState />;
 
   if (!isAuthenticated) {
     return <Navigate to="/login" replace />;
   }
+
+  // Do not expose the browser-local synthetic record store to a real hospital identity.
+  if (!isDemoSession) return <ClinicalDataMigrationNotice />;
 
   if (allowedRoles && (!role || !allowedRoles.includes(role))) {
     if (role === 'doctor') return <Navigate to="/doctor" replace />;
@@ -98,8 +128,9 @@ const ProtectedRoute: React.FC<{ children: React.ReactNode; allowedRoles?: UserR
 
 // Root index redirector based on current user role
 const RootRedirect: React.FC = () => {
-  const { isAuthenticated, role } = useAuth();
+  const { isAuthenticated, isLoading, role } = useAuth();
 
+  if (isLoading) return <RouteLoadingState />;
   if (!isAuthenticated) return <Navigate to="/login" replace />;
   if (role === 'attender') return <Navigate to="/attender" replace />;
   if (role === 'admin') return <Navigate to="/admin" replace />;

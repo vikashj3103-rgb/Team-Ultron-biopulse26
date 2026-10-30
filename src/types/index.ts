@@ -63,7 +63,7 @@ export interface Attender {
   assignedPatientId?: string;
   isOnline: boolean;
   temporaryPassword?: string;
-  passwordHash?: string;
+  demoPassword?: string;
   mustChangePassword?: boolean;
   status?: 'active' | 'revoked';
   createdAt?: string;

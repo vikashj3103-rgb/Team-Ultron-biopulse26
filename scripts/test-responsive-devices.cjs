@@ -82,6 +82,12 @@ async function main() {
     ws.onmessage = (event) => {
       try {
         const msg = JSON.parse(event.data);
+        if (msg.method === 'Runtime.consoleAPICalled') {
+          console.log('[BROWSER LOG]', msg.params?.type, msg.params?.args?.map(a => a.value || a.description).join(' '));
+        }
+        if (msg.method === 'Runtime.exceptionThrown') {
+          console.error('[BROWSER EXCEPTION]', msg.params?.exceptionDetails?.text, msg.params?.exceptionDetails?.exception?.description);
+        }
         if (msg.id && pending.has(msg.id)) {
           const { resolve, reject, timer } = pending.get(msg.id);
           clearTimeout(timer);
@@ -143,12 +149,25 @@ async function main() {
     }
 
     // Set initial 1440x900 viewport
+    let tabReady, htmlPreview, bodyPreview, currentInitUrl;
     await setViewport(1440, 900);
     await new Promise(r => setTimeout(r, 1000));
 
+
     console.log('\n[STEP 2] Logging in as Doctor via Demo Access...');
+    await evaluate(`try { sessionStorage.clear(); localStorage.removeItem('careconnect_demo_role'); } catch(e) {}`);
     await send('Page.navigate', { url: 'http://localhost:3001/login' });
-    await waitForElement('[data-testid="tab-demo-access"]', 10000);
+    currentInitUrl = 'http://localhost:3001/login';
+    for (let i = 0; i < 50; i++) {
+      const ready = await evaluate(`document.readyState === 'complete' && document.body.innerText.length > 20`);
+      if (ready) break;
+      await new Promise(r => setTimeout(r, 200));
+    }
+    htmlPreview = await evaluate(`document.documentElement.outerHTML`);
+    bodyPreview = await evaluate(`document.body.outerHTML`);
+    console.log('BODY PREVIEW in Chrome:', bodyPreview ? bodyPreview.slice(0, 600) : 'null');
+    tabReady = await waitForElement('[data-testid="tab-demo-access"]', 10000);
+    console.log('tab-demo-access ready:', tabReady);
 
     // Mark tutorial completed in localStorage to avoid modal overlap
     await evaluate(`
@@ -162,19 +181,28 @@ async function main() {
     await evaluate(`
       (() => {
         const demoTab = document.querySelector('[data-testid="tab-demo-access"]');
-        if (demoTab) demoTab.click();
+        if (demoTab) {
+          demoTab.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true }));
+          demoTab.click();
+        }
       })()
     `);
-    await waitForElement('[data-testid="demo-login-doctor"]', 5000);
+    const doctorBtnVisible = await waitForElement('[data-testid="demo-login-doctor"]', 5000);
+    console.log('doctorBtnVisible:', doctorBtnVisible);
 
     // Click Doctor Portal
     await evaluate(`
       (() => {
         const docBtn = document.querySelector('[data-testid="demo-login-doctor"]');
-        if (docBtn) docBtn.click();
+        if (docBtn) {
+          docBtn.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true }));
+          docBtn.click();
+        }
       })()
     `);
 
+    const pageText = await evaluate('document.body.innerText');
+    console.log('pageText preview:', pageText.slice(0, 150));
     // Wait for navigation to /doctor
     for (let i = 0; i < 30; i++) {
       const url = await evaluate('window.location.href');
@@ -182,6 +210,7 @@ async function main() {
       await new Promise(r => setTimeout(r, 300));
     }
     await new Promise(r => setTimeout(r, 1000));
+
 
     // Dismiss any coachmark/tutorial if still visible
     await evaluate(`
@@ -337,11 +366,34 @@ async function main() {
     // =========================================================================
     console.log('\n[STEP 6] Testing Admin Clinical Operations Telemetry Stepper Controls...');
     // Log in as Admin via Authorized Roles
+    await evaluate(`try { sessionStorage.clear(); localStorage.removeItem('careconnect_demo_role'); } catch(e) {}`);
     await send('Page.navigate', { url: 'http://localhost:3001/login' });
-    await waitForElement('[data-testid="tab-demo-access"]', 10000);
-    await evaluate(`document.querySelector('[data-testid="tab-demo-access"]')?.click()`);
+    currentInitUrl = 'http://localhost:3001/login';
+    for (let i = 0; i < 50; i++) {
+      const ready = await evaluate(`document.readyState === 'complete' && document.body.innerText.length > 20`);
+      if (ready) break;
+      await new Promise(r => setTimeout(r, 200));
+    }
+    htmlPreview = await evaluate(`document.documentElement.outerHTML`);
+    bodyPreview = await evaluate(`document.body.outerHTML`);
+    console.log('BODY PREVIEW in Chrome:', bodyPreview ? bodyPreview.slice(0, 600) : 'null');
+    tabReady = await waitForElement('[data-testid="tab-demo-access"]', 10000);
+    console.log('tab-demo-access ready:', tabReady);
+    await evaluate(`(() => {
+      const demoTab = document.querySelector('[data-testid="tab-demo-access"]');
+      if (demoTab) {
+        demoTab.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true }));
+        demoTab.click();
+      }
+    })()`);
     await waitForElement('[data-testid="demo-login-admin"]', 5000);
-    await evaluate(`document.querySelector('[data-testid="demo-login-admin"]')?.click()`);
+    await evaluate(`(() => {
+      const adminBtn = document.querySelector('[data-testid="demo-login-admin"]');
+      if (adminBtn) {
+        adminBtn.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true }));
+        adminBtn.click();
+      }
+    })()`);
     for (let i = 0; i < 30; i++) {
       const url = await evaluate('window.location.href');
       if (url && url.includes('/admin')) break;
@@ -352,9 +404,13 @@ async function main() {
     await send('Page.navigate', { url: 'http://localhost:3001/admin/demo' });
     await new Promise(r => setTimeout(r, 2000));
     await setViewport(1280, 800);
+    console.log('After Admin Demo Navigate URL:', await evaluate('window.location.href'));
+    const controlsReady = await waitForElement('[aria-label="Clinical Telemetry Controls"]', 8000);
+    console.log('controlsReady:', controlsReady);
 
     const adminLoaded = await evaluate(`(() => {
       return {
+        url: window.location.href,
         hasControls: !!document.querySelector('[aria-label="Clinical Telemetry Controls"]'),
         hasAdminOpsTitle: document.body.innerText.includes('Clinical Operations') || document.body.innerText.includes('Telemetry Control Center'),
       };
@@ -451,7 +507,9 @@ async function main() {
     // STEP 7: Redesigned Login Page & Attender Portal Mobile Verification
     // =========================================================================
     console.log('\n[STEP 7] Verifying Redesigned Login Page & Attender Mobile (390x844)...');
+    await evaluate(`try { sessionStorage.clear(); localStorage.removeItem('careconnect_demo_role'); } catch(e) {}`);
     await send('Page.navigate', { url: 'http://localhost:3001/login' });
+    currentInitUrl = 'http://localhost:3001/login';
     await new Promise(r => setTimeout(r, 1500));
 
     // Desktop Login Verification (1440x900)
@@ -489,11 +547,23 @@ async function main() {
 
     // Switch to Authorized Roles & Log in as Attender
     await waitForElement('[data-testid="tab-demo-access"]', 5000);
-    await evaluate(`document.querySelector('[data-testid="tab-demo-access"]')?.click()`);
+    await evaluate(`(() => {
+      const demoTab = document.querySelector('[data-testid="tab-demo-access"]');
+      if (demoTab) {
+        demoTab.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true }));
+        demoTab.click();
+      }
+    })()`);
     await waitForElement('[data-testid="demo-login-attender"]', 5000);
 
     // Click Family Attender Portal
-    await evaluate(`document.querySelector('[data-testid="demo-login-attender"]')?.click()`);
+    await evaluate(`(() => {
+      const attBtn = document.querySelector('[data-testid="demo-login-attender"]');
+      if (attBtn) {
+        attBtn.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true }));
+        attBtn.click();
+      }
+    })()`);
     for (let i = 0; i < 30; i++) {
       const url = await evaluate('window.location.href');
       if (url && url.includes('/attender')) break;

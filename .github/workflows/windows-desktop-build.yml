@@ -1,0 +1,75 @@
+name: CareConnect Windows Desktop Build
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths:
+      - 'src/**'
+      - 'src-tauri/**'
+      - 'public/**'
+      - 'package.json'
+      - 'package-lock.json'
+      - 'vite.config.ts'
+      - 'tsconfig.json'
+      - '.github/workflows/windows-desktop-build.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  build-windows:
+    name: Build Windows Desktop App & Installers (MSVC)
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'npm'
+
+      - name: Setup Rust (MSVC stable)
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: x86_64-pc-windows-msvc
+
+      - name: Rust Cache
+        uses: swatinem/rust-cache@v2
+        with:
+          workspaces: './src-tauri -> target'
+
+      - name: Install npm dependencies
+        run: npm ci
+
+      - name: Verify TypeScript compilation
+        run: npx tsc -b
+
+      - name: Run verification test suites
+        run: npm test
+
+      - name: Build frontend production bundle
+        run: npm run build
+
+      - name: Build Tauri 2 Windows Application & Installers
+        run: npx tauri build --target x86_64-pc-windows-msvc
+
+      - name: Inspect generated bundle artifacts
+        shell: pwsh
+        run: |
+          Write-Host "=== Generated Bundle Artifacts ==="
+          Get-ChildItem -Path src-tauri/target -Recurse -Include *.exe, *.msi | Select-Object FullName, Length | Format-Table -AutoSize
+
+      - name: Upload Windows Installers
+        uses: actions/upload-artifact@v4
+        with:
+          name: CareConnect-Windows-Installers
+          path: |
+            src-tauri/target/**/bundle/nsis/*.exe
+            src-tauri/target/**/bundle/msi/*.msi
+          if-no-files-found: error
+          retention-days: 14

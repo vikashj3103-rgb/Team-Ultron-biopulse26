@@ -45,7 +45,14 @@ export const AdminLayout: React.FC = () => {
   return (
     <div className="min-h-screen flex flex-col bg-[var(--bg-primary)] text-slate-900">
       {/* Admin Dedicated Top Navigation Bar */}
-      <header className="sticky top-0 z-30 bg-white border-b border-slate-200 shadow-2xs">
+      <header
+        style={{
+          paddingTop: 'env(safe-area-inset-top, 0px)',
+          paddingLeft: 'env(safe-area-inset-left, 0px)',
+          paddingRight: 'env(safe-area-inset-right, 0px)',
+        }}
+        className="sticky top-0 z-30 bg-white border-b border-slate-200 shadow-2xs"
+      >
         <div className="mx-auto flex min-h-16 w-full max-w-7xl flex-wrap items-center justify-between gap-x-4 gap-y-2 px-4 py-2 xl:flex-nowrap xl:px-8 xl:py-0 sm:px-6">
           {/* Brand & Hamburger Button */}
           <div className="flex items-center gap-3">
@@ -55,7 +62,7 @@ export const AdminLayout: React.FC = () => {
               data-tour="header-hamburger"
               aria-label="Toggle navigation"
               aria-expanded={sidebarOpen}
-              className="flex h-10 w-10 min-h-[40px] min-w-[40px] items-center justify-center rounded-lg border border-[#CBD5E1] bg-white text-[#0F172A] hover:bg-[#F8FAFC] transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500/20 shadow-2xs"
+              className="flex h-11 w-11 min-h-[44px] min-w-[44px] items-center justify-center rounded-lg border border-[#CBD5E1] bg-white text-[#0F172A] hover:bg-[#F8FAFC] transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500/20 shadow-2xs"
             >
               <Menu className="w-5 h-5 text-[#0F172A]" />
             </button>
@@ -147,6 +154,11 @@ export const AdminLayout: React.FC = () => {
         {/* Clean White Clinical Navigation Drawer */}
         <aside
           aria-label="Admin navigation drawer"
+          style={{
+            paddingTop: 'env(safe-area-inset-top, 0px)',
+            paddingBottom: 'env(safe-area-inset-bottom, 0px)',
+            paddingLeft: 'env(safe-area-inset-left, 0px)',
+          }}
           className={`fixed inset-y-0 left-0 z-50 flex w-[280px] flex-col justify-between border-r border-[#E2E8F0] bg-white shadow-2xl transition-transform duration-200 ease-in-out ${
             sidebarOpen ? 'translate-x-0' : '-translate-x-full'
           }`}

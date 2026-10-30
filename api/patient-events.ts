@@ -1,4 +1,5 @@
 import { syncStore } from './_state.js';
+import { denyIfDemoRelayDisabled, checkRateLimit } from './_security.js';
 
 // Ambient declaration for Serverless environment
 declare const process: any;
@@ -13,6 +14,7 @@ const DEVICE_PATIENT_MAP: Record<string, string> = {
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export default async function handler(req: any, res: any) {
+  if (denyIfDemoRelayDisabled(res)) return;
   // Mock unit test check for unconfigured relay
   if (!req.headers && (typeof process === 'undefined' || !process.env.VERCEL)) {
     return res.status(503).json({
@@ -37,6 +39,14 @@ export default async function handler(req: any, res: any) {
 
     // Device-to-patient mapping
     const deviceId = payload.deviceId || req.headers?.['x-device-id'] || 'GLOVE-ESP32-DEV01';
+
+    // Rate limit: 60 events per minute per device
+    const rate = checkRateLimit(`hw_${deviceId}`, 60, 60000);
+    if (!rate.allowed) {
+      res.setHeader('Retry-After', String(rate.retryAfterSeconds || 60));
+      return res.status(429).json({ error: 'Hardware ingestion rate limit exceeded. Throttle telemetry sensor rate.' });
+    }
+
     let targetPatientId = payload.patientId;
     if (!targetPatientId && DEVICE_PATIENT_MAP[deviceId]) {
       targetPatientId = DEVICE_PATIENT_MAP[deviceId];

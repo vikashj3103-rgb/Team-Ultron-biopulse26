@@ -10,7 +10,7 @@ INSERT INTO public.rooms (room_number, department, bed_count, is_occupied) VALUE
 ('SURG-102', 'Orthopedics', 2, true),
 ('NEURO-301', 'Neurology', 1, true),
 ('GEN-405', 'General Medicine', 2, false)
-ON CONFLICT (room_number) DO NOTHING;
+ON CONFLICT (hospital_id, room_number) DO NOTHING;
 
 -- Demo Doctors
 INSERT INTO public.doctors (id, name, email, specialty, department, phone, is_online, active_patient_count) VALUES

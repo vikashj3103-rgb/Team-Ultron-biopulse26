@@ -10,6 +10,7 @@
 
 import { supabase, isSupabaseConfigured } from '../lib/supabase';
 import { networkSyncService } from './networkSyncService';
+import { DEMO_MODE_ENABLED } from './runtimeMode';
 import { 
   Patient, PatientRequest, VitalReading, VitalAlert, 
   Medication, MedicalReport, DoctorNote, TimelineEvent 
@@ -19,12 +20,15 @@ export class SupabaseSyncService {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private channel: any = null;
   private isConfigured: boolean = false;
+  // The existing DataStore payloads do not yet carry trusted membership context or tenant IDs.
+  // Keep this legacy sync path closed until tenant-scoped reads/writes replace it.
+  private readonly isTenantPersistenceReady = false;
   private isConnected: boolean = false;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private onRemoteEventCallback: ((table: string, eventType: string, payload: any) => void) | null = null;
 
   constructor() {
-    this.isConfigured = isSupabaseConfigured();
+    this.isConfigured = isSupabaseConfigured() && this.isTenantPersistenceReady;
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -132,6 +136,7 @@ export class SupabaseSyncService {
    */
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   public async broadcast(event: { table: string; eventType: string; data: any }): Promise<void> {
+    if (!DEMO_MODE_ENABLED) return;
     if (!this.isConnected || !this.channel) return;
     try {
       await this.channel.send({

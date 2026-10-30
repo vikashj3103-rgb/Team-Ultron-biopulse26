@@ -4,9 +4,26 @@ import tailwindcss from '@tailwindcss/vite'
 
 // Cross-Device Real-Time Synchronization & Hardware Ingestion Relay
 function careconnectRealtimePlugin(): Plugin {
+  let demoRelayEnabled = false;
   return {
     name: 'careconnect-realtime-sync',
+    configResolved(config) {
+      demoRelayEnabled = config.mode !== 'production' && config.env.VITE_DEMO_MODE === 'true';
+      if (config.mode !== 'production' && config.env) {
+        for (const [key, val] of Object.entries(config.env)) {
+          if (!process.env[key] && typeof val === 'string') {
+            process.env[key] = val;
+          }
+        }
+      }
+    },
     configureServer(server) {
+      const rejectIfDisabled = (res: { writeHead: (status: number, headers: Record<string, string>) => void; end: (body?: string) => void }) => {
+        if (demoRelayEnabled) return false;
+        res.writeHead(503, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ success: false, error: 'The in-memory relay is available only in local synthetic demo mode.' }));
+        return true;
+      };
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const connectedClients = new Map<string, { res: any; req: any; connectedAt: number; lastPing: number }>();
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -15,6 +32,7 @@ function careconnectRealtimePlugin(): Plugin {
 
       // 1. Live Long-Lived SSE Stream for Cross-Device Synchronization & Cloudflare Quick Tunnel
       server.middlewares.use('/api/sync/stream', (req, res) => {
+        if (rejectIfDisabled(res)) return;
         // Parse request URL and parameters
         const reqUrl = new URL(req.url || '/', 'http://localhost:3001');
         const clientIdParam = reqUrl.searchParams.get('clientId');
@@ -89,6 +107,7 @@ function careconnectRealtimePlugin(): Plugin {
 
       // 2. Canonical State Snapshot for newly connected devices (e.g. phone loading over Wi-Fi)
       server.middlewares.use('/api/sync/state', (req, res) => {
+        if (rejectIfDisabled(res)) return;
         res.setHeader('Content-Type', 'application/json');
         res.setHeader('Access-Control-Allow-Origin', '*');
         res.statusCode = 200;
@@ -97,6 +116,7 @@ function careconnectRealtimePlugin(): Plugin {
 
       // 2b. Reset Canonical State endpoint
       server.middlewares.use('/api/sync/reset', (req, res) => {
+        if (rejectIfDisabled(res)) return;
         canonicalServerState = null;
         res.setHeader('Content-Type', 'application/json');
         res.setHeader('Access-Control-Allow-Origin', '*');
@@ -106,6 +126,7 @@ function careconnectRealtimePlugin(): Plugin {
 
       // 3. Mutation Ingestion & Multi-Device SSE Broadcast
       server.middlewares.use('/api/sync', (req, res, next) => {
+        if (rejectIfDisabled(res)) return;
         if (req.method === 'OPTIONS') {
           res.setHeader('Access-Control-Allow-Origin', '*');
           res.setHeader('Access-Control-Allow-Methods', 'POST, GET, OPTIONS');
@@ -176,6 +197,7 @@ function careconnectRealtimePlugin(): Plugin {
 
       // 4. ESP32 Hardware Smart Glove & Telemetry Event Gateway
       server.middlewares.use('/api/patient-events', (req, res, next) => {
+        if (rejectIfDisabled(res)) return;
         if (req.method === 'OPTIONS') {
           res.setHeader('Access-Control-Allow-Origin', '*');
           res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
@@ -243,6 +265,64 @@ function careconnectRealtimePlugin(): Plugin {
         next();
       });
 
+      // 5. CareConnect Production Clinical AI Gateway Middleware
+      server.middlewares.use('/api/clinical-ai', async (req, res) => {
+        const origin = (req.headers && req.headers.origin) ? req.headers.origin : '*';
+        res.setHeader('Access-Control-Allow-Origin', origin);
+        res.setHeader('Access-Control-Allow-Credentials', 'true');
+        res.setHeader('Vary', 'Origin');
+        res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
+        const reqHeaders = req.headers ? req.headers['access-control-request-headers'] : undefined;
+        res.setHeader('Access-Control-Allow-Headers', reqHeaders || 'Content-Type, Authorization, X-CareConnect-Role, X-CareConnect-Patient-Id, X-CareConnect-Assigned-Doctor, X-CareConnect-Assigned-Attender, X-CareConnect-Hospital-Id');
+
+        if (req.method === 'OPTIONS') {
+          res.statusCode = 200;
+          return res.end();
+        }
+
+        if (req.method === 'POST') {
+          let body = '';
+          req.on('data', (chunk) => {
+            body += chunk;
+          });
+          req.on('end', async () => {
+            try {
+              (req as any).body = body ? JSON.parse(body) : {};
+            } catch {
+              (req as any).body = {};
+            }
+
+            const mockRes = {
+              status: (code: number) => {
+                res.statusCode = code;
+                return mockRes;
+              },
+              setHeader: (k: string, v: string) => res.setHeader(k, v),
+              json: (data: any) => {
+                res.setHeader('Content-Type', 'application/json');
+                res.end(JSON.stringify(data));
+              },
+              end: () => res.end(),
+            };
+
+            try {
+              const handler = (await import('./api/clinical-ai.js')).default;
+              await handler(req, mockRes);
+            } catch (err: any) {
+              console.error('[Vite AI Middleware] Handler error:', err?.message || err);
+              res.statusCode = 500;
+              res.setHeader('Content-Type', 'application/json');
+              res.end(JSON.stringify({ success: false, error: 'Internal AI gateway middleware failure' }));
+            }
+          });
+          return;
+        }
+
+        res.statusCode = 405;
+        res.setHeader('Content-Type', 'application/json');
+        res.end(JSON.stringify({ error: 'Method not allowed' }));
+      });
+
       // Keep-alive heartbeat & ping every 15s to maintain Cloudflare Quick Tunnel and mobile Wi-Fi connections
       const pingInterval = setInterval(() => {
         const pingSeq = ++serverEventSequence;
@@ -285,12 +365,24 @@ export default defineConfig({
     port: 3001,
     strictPort: true,
     allowedHosts: true,
+    cors: {
+      origin: true,
+      credentials: true,
+      methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
+      allowedHeaders: '*',
+    },
   },
   preview: {
     host: '0.0.0.0',
     port: 3001,
     strictPort: true,
     allowedHosts: true,
+    cors: {
+      origin: true,
+      credentials: true,
+      methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
+      allowedHeaders: '*',
+    },
   },
   build: {
     chunkSizeWarningLimit: 1200,

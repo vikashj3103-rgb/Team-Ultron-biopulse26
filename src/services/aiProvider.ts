@@ -1,3 +1,4 @@
+import { supabase } from '../lib/supabase';
 /**
  * HealthConnect Clinical AI Provider Architecture & Data Sanitization Layer
  * 
@@ -16,6 +17,47 @@
 
 import { Patient, VitalAlert, Medication, MedicalReport, TimelineEvent, UserRole } from '../types';
 import { formatTemperatureF, formatTemperatureVal } from '../utils/temperature';
+
+function getEnvVar(key: string): string | undefined {
+  if (typeof import.meta !== 'undefined' && import.meta.env) {
+    const val = (import.meta.env as Record<string, string | undefined>)[key];
+    if (val !== undefined && val !== '') return val;
+  }
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const proc = typeof globalThis !== 'undefined' ? (globalThis as any).process : undefined;
+  return proc?.env?.[key];
+}
+
+/**
+ * Robust cross-platform API URL resolver.
+ * Handles localhost, HTTPS dev tunnels (e.g. devtunnels.ms), remote Wi-Fi IPs,
+ * desktop schemes (tauri://), and Node.js server/test environments without CORS/mixed-content blocks.
+ */
+export function resolveApiUrl(endpoint: string): string {
+  const cleanEndpoint = endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
+  if (endpoint.startsWith('http://') || endpoint.startsWith('https://')) {
+    return endpoint;
+  }
+  const configuredBase = (getEnvVar('VITE_API_BASE_URL') || '').replace(/\/+$/, '');
+
+  if (typeof window !== 'undefined') {
+    const protocol = window.location.protocol;
+    const isCustomScheme = protocol === 'tauri:' || protocol === 'capacitor:';
+    if (isCustomScheme) {
+      return `${configuredBase || 'http://localhost:3001'}${cleanEndpoint}`;
+    }
+    const isHttps = protocol === 'https:';
+    const isRemote = window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1';
+    // When running in browser over HTTPS dev tunnel or remote host, never prepend http://localhost (mixed content / cross-origin block)
+    if (configuredBase && (!isHttps || configuredBase.startsWith('https:')) && (!isRemote || !configuredBase.includes('localhost'))) {
+      return `${configuredBase}${cleanEndpoint}`;
+    }
+    return cleanEndpoint;
+  }
+
+  const nodeBase = configuredBase || 'http://localhost:3001';
+  return `${nodeBase}${cleanEndpoint}`;
+}
 
 export interface SanitizedPatientContext {
   id: string;
@@ -294,7 +336,91 @@ export class LocalClinicalAiProvider implements AiProvider {
   }
 }
 
-export type ClinicalAiProviderType = 'local' | 'gemini' | 'openai' | 'medical-gateway';
+
+/**
+ * Production Server-Side AI Gateway Provider
+ * Communicates with /api/clinical-ai; client never receives or stores provider secrets.
+ */
+export class ServerGatewayClinicalAiProvider implements AiProvider {
+  public readonly name = 'CareConnect Server AI Gateway (OmniRoute)';
+  public readonly isExternal = true;
+  private fallbackProvider = new LocalClinicalAiProvider();
+  private endpoint: string;
+  private timeoutMs: number;
+
+  constructor(endpoint = '/api/clinical-ai', options?: { timeoutMs?: number }) {
+    this.endpoint = endpoint;
+    this.timeoutMs = options?.timeoutMs || 18000;
+  }
+
+  public summarizePatient(context: SanitizedPatientContext): ClinicalSummaryResult {
+    return this.fallbackProvider.summarizePatient(context);
+  }
+
+  public async summarizePatientAsync(context: SanitizedPatientContext): Promise<ClinicalSummaryResult> {
+    const controller = new AbortController();
+    const timeoutTimer = setTimeout(() => controller.abort(), this.timeoutMs);
+
+    try {
+      let token = '';
+      if (typeof window !== 'undefined') {
+        try {
+          const { data } = await supabase.auth.getSession();
+          token = data?.session?.access_token || '';
+        } catch {
+          // ignore
+        }
+      }
+
+      const headers: Record<string, string> = {
+        'Content-Type': 'application/json',
+      };
+      if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+      } else {
+        headers['X-CareConnect-Role'] = 'doctor';
+      headers['X-CareConnect-Patient-Id'] = context.id;
+      }
+
+      const url = resolveApiUrl(this.endpoint);
+
+      const response = await fetch(url, {
+        method: 'POST',
+        headers,
+        body: JSON.stringify({
+          action: 'CLINICAL_SUMMARY',
+          patient: context,
+        }),
+        signal: controller.signal,
+      });
+
+      clearTimeout(timeoutTimer);
+
+      if (!response.ok) {
+        console.warn(`[CareConnect AI Gateway] HTTP ${response.status} — using local fallback`);
+        return this.fallbackProvider.summarizePatient(context);
+      }
+
+      const json = (await response.json()) as any;
+      if (!json.success || !json.result) {
+        console.warn('[CareConnect AI Gateway] Invalid server response payload — using local fallback');
+        return this.fallbackProvider.summarizePatient(context);
+      }
+
+      return json.result as ClinicalSummaryResult;
+    } catch (err: any) {
+      clearTimeout(timeoutTimer);
+      if (err?.name === 'AbortError') {
+        console.warn(`[CareConnect AI Gateway] Request timed out after ${this.timeoutMs}ms — using local fallback`);
+      } else {
+        console.warn('[CareConnect AI Gateway] Network or fetch error — using local fallback');
+      }
+      return this.fallbackProvider.summarizePatient(context);
+    }
+  }
+}
+
+export type ClinicalAiProviderType = 'server-gateway' | 'local' | 'gemini' | 'openai' | 'medical-gateway';
 
 /**
  * Gemini Provider via Secure Server Gateway
@@ -340,16 +466,30 @@ export class GeminiClinicalAiProvider implements AiProvider {
 }
 
 /**
- * OpenAI-Compatible Provider via Secure Server Gateway
+ * OpenAI-Compatible Provider via OmniRoute Gateway
  */
 export class OpenAiClinicalAiProvider implements AiProvider {
-  public readonly name = 'OpenAI Clinical Assistant (Gateway)';
+  public readonly name = 'OpenAI Clinical Assistant (OmniRoute Gateway)';
   public readonly isExternal = true;
   private fallbackProvider = new LocalClinicalAiProvider();
-  private gatewayEndpoint: string;
+  private baseUrl: string;
+  private apiKey: string;
+  private model: string;
+  private timeoutMs: number;
 
-  constructor(gatewayEndpoint = '/api/clinical-ai/openai-summary') {
-    this.gatewayEndpoint = gatewayEndpoint;
+  constructor(gatewayEndpoint?: string, options?: { apiKey?: string; model?: string; timeoutMs?: number }) {
+    const envBase = getEnvVar('OMNIROUTE_BASE_URL');
+    const envKey = getEnvVar('OMNIROUTE_API_KEY');
+    const envModel = getEnvVar('OMNIROUTE_MODEL');
+
+    if (gatewayEndpoint && (gatewayEndpoint.startsWith('http://') || gatewayEndpoint.startsWith('https://'))) {
+      this.baseUrl = gatewayEndpoint.replace(/\/+$/, '');
+    } else {
+      this.baseUrl = (envBase || gatewayEndpoint || 'http://localhost:20128/v1').replace(/\/+$/, '');
+    }
+    this.apiKey = options?.apiKey || envKey || '';
+    this.model = options?.model || envModel || 'antigravity/gemini-3-flash';
+    this.timeoutMs = options?.timeoutMs || 12000;
   }
 
   public summarizePatient(context: SanitizedPatientContext): ClinicalSummaryResult {
@@ -357,23 +497,141 @@ export class OpenAiClinicalAiProvider implements AiProvider {
   }
 
   public async summarizePatientAsync(context: SanitizedPatientContext): Promise<ClinicalSummaryResult> {
+    // If no API key configured, use local fallback immediately
+    if (!this.apiKey) {
+      return this.fallbackProvider.summarizePatient(context);
+    }
+
+    const controller = new AbortController();
+    const timeoutTimer = setTimeout(() => controller.abort(), this.timeoutMs);
+
     try {
-      const response = await fetch(this.gatewayEndpoint, {
+      const systemInstruction = `You are an expert clinical AI decision-support assistant for the CareConnect hospital platform.
+Analyze the provided sanitized patient telemetry, vitals, medications, and timeline events.
+Generate a structured clinical summary.
+CRITICAL SAFETY & MEDICAL INTEGRITY CONSTRAINTS:
+1. You must not invent or extrapolate unverified clinical data, vital numbers, or diagnoses.
+2. Rely strictly on the provided patient context.
+3. You must not prescribe medications, recommend changing doses, or make final diagnostic claims.
+4. You must format your response as strict valid JSON conforming to the following keys:
+{
+  "patientOverview": "Concise summary of patient admission, age, sex, primary condition, and attending team",
+  "currentStatus": "Clinical assessment of current physiological stability from telemetry",
+  "vitalTrends": ["Array of strings summarizing trends in BP, Pulse, SpO2, and Temp"],
+  "medicationsOverview": ["Array of strings reviewing active medication schedule and statuses"],
+  "recentClinicalEvents": ["Array of strings highlighting recent alerts or acute episodes"],
+  "importantTimelineChanges": ["Array of strings noting notable timeline transitions"],
+  "potentialItemsForReview": ["Array of strings identifying pending items, allergies, or observations requiring clinician review"]
+}`;
+
+      const userPrompt = `Patient Record (Sanitized Context):
+Name: ${context.name}
+MRN: ${context.mrn}
+Age: ${context.age} | Gender: ${context.gender} | Blood: ${context.bloodGroup}
+Location: ${context.department} (${context.room}, Bed ${context.bed})
+Primary Condition: ${context.primaryCondition}
+Current Diagnosis: ${context.currentDiagnosis || 'N/A'}
+Admission Date: ${context.admissionDate}
+Attending Doctor: ${context.assignedDoctorName} (${context.assignedDoctorSpecialty || 'General'})
+Allergies: ${context.allergies?.join(', ') || 'None documented'}
+Latest Vitals: BP ${context.latestVitals.systolicBP}/${context.latestVitals.diastolicBP} mmHg (${context.latestVitals.bpStatus}), Pulse ${context.latestVitals.pulse} bpm (${context.latestVitals.pulseStatus}), SpO2 ${context.latestVitals.spO2}% (${context.latestVitals.spO2Status}), Temp ${context.latestVitals.temperatureF} (${context.latestVitals.tempStatus})
+Active Medications: ${JSON.stringify(context.medications)}
+Recent Alerts: ${JSON.stringify(context.alerts)}
+Recent Timeline: ${JSON.stringify(context.recentTimeline)}`;
+
+      const endpoint = this.baseUrl.endsWith('/chat/completions')
+        ? this.baseUrl
+        : `${this.baseUrl}/chat/completions`;
+
+      const response = await fetch(endpoint, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ patientContext: context }),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${this.apiKey}`,
+        },
+        body: JSON.stringify({
+          model: this.model,
+          messages: [
+            { role: 'system', content: systemInstruction },
+            { role: 'user', content: userPrompt },
+          ],
+          response_format: { type: 'json_object' },
+          temperature: 0.2,
+          max_tokens: 1500,
+        }),
+        signal: controller.signal,
       });
 
+      clearTimeout(timeoutTimer);
+
       if (!response.ok) {
+        console.warn(`[OmniRoute] Request failed with HTTP ${response.status} — using local AI fallback`);
         return this.fallbackProvider.summarizePatient(context);
       }
 
-      const data = await response.json();
+      const json = await response.json();
+      const content = json.choices?.[0]?.message?.content;
+      if (!content || typeof content !== 'string') {
+        console.warn('[OmniRoute] Empty or invalid response payload — using local AI fallback');
+        return this.fallbackProvider.summarizePatient(context);
+      }
+
+      // Parse JSON from model content
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      let parsed: any;
+      try {
+        const cleanContent = content.replace(/^```json\s*/i, '').replace(/```\s*$/, '').trim();
+        parsed = JSON.parse(cleanContent);
+      } catch {
+        console.warn('[OmniRoute] Failed to parse model JSON — using local AI fallback');
+        return this.fallbackProvider.summarizePatient(context);
+      }
+
+      // Merge verified clinical latest vitals summary (deterministic truth) with OmniRoute clinical synthesis
+      const v = context.latestVitals;
       return {
-        ...data,
-        disclaimer: 'AI-generated clinical summary — verify against the patient’s medical record. This decision-support draft does not replace physician clinical judgment.',
+        patientOverview: parsed.patientOverview || `${context.name} (${context.age}y ${context.gender}) admitted to ${context.room}.`,
+        currentStatus: parsed.currentStatus || 'Stable under continuous clinical observation.',
+        latestVitalsSummary: {
+          bp: `${v.systolicBP}/${v.diastolicBP} mmHg`,
+          pulse: v.pulse,
+          spO2: v.spO2,
+          tempF: v.temperatureF,
+          tempC: v.temperatureC,
+          statusText: `${v.bpStatus} BP • ${v.pulseStatus} pulse • ${v.spO2Status} SpO2 • ${v.tempStatus} temp`,
+          recordedAt: new Date(v.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+        },
+        vitalTrends: Array.isArray(parsed.vitalTrends) && parsed.vitalTrends.length > 0
+          ? parsed.vitalTrends
+          : [
+              `Blood Pressure: ${v.systolicBP}/${v.diastolicBP} mmHg (${v.bpStatus})`,
+              `Pulse: ${v.pulse} bpm (${v.pulseStatus})`,
+              `SpO2: ${v.spO2}% (${v.spO2Status})`,
+              `Core Temperature: ${v.temperatureF} (${v.tempStatus})`,
+            ],
+        medicationsOverview: Array.isArray(parsed.medicationsOverview) && parsed.medicationsOverview.length > 0
+          ? parsed.medicationsOverview
+          : context.medications.map((m) => `• ${m.name} ${m.dosage} (${m.frequency}) - Status: ${m.status}`),
+        recentClinicalEvents: Array.isArray(parsed.recentClinicalEvents) && parsed.recentClinicalEvents.length > 0
+          ? parsed.recentClinicalEvents
+          : ['No acute biometric alert triggers in recent observation window.'],
+        importantTimelineChanges: Array.isArray(parsed.importantTimelineChanges) && parsed.importantTimelineChanges.length > 0
+          ? parsed.importantTimelineChanges
+          : ['Routine clinical monitoring ongoing.'],
+        potentialItemsForReview: Array.isArray(parsed.potentialItemsForReview) && parsed.potentialItemsForReview.length > 0
+          ? parsed.potentialItemsForReview
+          : ['All telemetry parameters resting within baseline thresholds.'],
+        disclaimer: 'AI-generated clinical summary via OmniRoute — verify against the patient’s medical record. This decision-support draft does not replace physician clinical judgment.',
+        generatedAt: new Date().toISOString(),
       };
-    } catch {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (err: any) {
+      clearTimeout(timeoutTimer);
+      if (err?.name === 'AbortError') {
+        console.warn(`[OmniRoute] Request timed out after ${this.timeoutMs}ms — using local AI fallback`);
+      } else {
+        console.warn('[OmniRoute] Network / fetch error — using local AI fallback');
+      }
       return this.fallbackProvider.summarizePatient(context);
     }
   }
@@ -383,10 +641,12 @@ export class OpenAiClinicalAiProvider implements AiProvider {
  * Factory creating configured AI provider
  */
 export function createClinicalAiProvider(
-  type: ClinicalAiProviderType = 'local',
+  type: ClinicalAiProviderType = 'server-gateway',
   gatewayEndpoint?: string
 ): AiProvider {
   switch (type) {
+    case 'server-gateway':
+      return new ServerGatewayClinicalAiProvider(gatewayEndpoint);
     case 'gemini':
       return new GeminiClinicalAiProvider(gatewayEndpoint);
     case 'openai':
@@ -401,7 +661,19 @@ export function createClinicalAiProvider(
  * Service managing active AI Provider
  */
 class ClinicalAiService {
-  private activeProvider: AiProvider = new LocalClinicalAiProvider();
+  private activeProvider: AiProvider;
+
+  constructor() {
+    const isBrowser = typeof window !== 'undefined';
+    if (isBrowser) {
+      // In production browser, always use the secure server gateway (no secrets in browser bundle)
+      this.activeProvider = new ServerGatewayClinicalAiProvider();
+    } else {
+      // In Node / serverless / test runner environment with direct key, support direct OmniRoute
+      const hasDirectKey = Boolean(getEnvVar('OMNIROUTE_API_KEY'));
+      this.activeProvider = hasDirectKey ? new OpenAiClinicalAiProvider() : new ServerGatewayClinicalAiProvider();
+    }
+  }
 
   public setProvider(provider: AiProvider) {
     this.activeProvider = provider;

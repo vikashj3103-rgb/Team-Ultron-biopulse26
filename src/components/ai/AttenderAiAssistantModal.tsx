@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Patient, UserRole } from '../../types';
 import { HospitalMapView } from '../navigation/HospitalMapView';
-import { careAiService, processCareAiQuery, CareAiResponse } from '../../services/careAiService';
+import { careAiService, processCareAiQuery, processCareAiQueryAsync, CareAiResponse } from '../../services/careAiService';
 import { useCareAiLanguage, getSpeechLocale } from '../../i18n';
 import {
   Bot,
@@ -29,7 +29,7 @@ import {
   User,
 } from 'lucide-react';
 
-export { processCareAiQuery };
+export { processCareAiQuery, processCareAiQueryAsync };
 
 interface AttenderAiAssistantModalProps {
   patient?: Patient;
@@ -224,7 +224,7 @@ export const AttenderAiAssistantModal: React.FC<AttenderAiAssistantModalProps> =
     }
   };
 
-  const handleSendMessage = (textToSend?: string) => {
+  const handleSendMessage = async (textToSend?: string) => {
     const text = (textToSend || inputQuery).trim();
     if (!text) return;
 
@@ -240,8 +240,13 @@ export const AttenderAiAssistantModal: React.FC<AttenderAiAssistantModalProps> =
     setInputQuery('');
     setVoiceStatus('PROCESSING');
 
-    setTimeout(() => {
-      const response = careAiService.processQuery(text, patient, careAiLanguage, role, doctorId);
+    try {
+      let response: CareAiResponse;
+      try {
+        response = await careAiService.processQueryAsync(text, patient, careAiLanguage, role, doctorId);
+      } catch {
+        response = careAiService.processQuery(text, patient, careAiLanguage, role, doctorId);
+      }
       const assistantMsg: ChatMessage = {
         id: 'reply-' + Date.now(),
         sender: 'assistant',
@@ -252,7 +257,12 @@ export const AttenderAiAssistantModal: React.FC<AttenderAiAssistantModalProps> =
 
       setMessages((prev) => [...prev, assistantMsg]);
       speakText(response.reply);
-    }, 300);
+      setVoiceStatus('IDLE');
+    } catch (err) {
+      console.error('[CareAI] Error handling message:', err);
+      setErrorMessage('Unable to process request at this moment.');
+      setVoiceStatus('IDLE');
+    }
   };
 
   const handleOpenMap = (origin?: string, dest?: string) => {
@@ -443,6 +453,12 @@ export const AttenderAiAssistantModal: React.FC<AttenderAiAssistantModalProps> =
                   }`}
                 >
                   <p className="text-sm leading-relaxed whitespace-pre-line">{m.text}</p>
+                  {!isUser && payload?.isOfflineFallback && (
+                    <span className="mt-2 pt-2 border-t border-slate-200 dark:border-slate-700 flex items-center gap-1.5 text-[11px] font-medium text-amber-700 dark:text-amber-400">
+                      <AlertTriangle className="w-3.5 h-3.5 shrink-0" />
+                      AI server unreachable — running on local deterministic clinical intelligence.
+                    </span>
+                  )}
                 </div>
 
                 {/* -------------------------------------------------------- */}

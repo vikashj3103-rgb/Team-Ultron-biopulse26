@@ -682,6 +682,8 @@ async function runMasterTestSuite() {
   const newLogin = dataStore.verifyAttenderPassword('suresh_son', 'PermanentPass@123');
   assert(newLogin.valid === true && newLogin.attender?.mustChangePassword === false, 'New password accepted and mustChangePassword is false');
   assert(!newLogin.attender?.temporaryPassword, 'Temporary password is wiped from record');
+  const serializedAttenders = JSON.stringify(dataStore.getStateSnapshot().attenders);
+  assert(!serializedAttenders.includes('Care@2026') && !serializedAttenders.includes('PermanentPass@123'), 'Attender demo credentials are excluded from snapshots');
 
   // Test 6: Multi-attender independent actions and attribution
   const reqGesture = dataStore.createPatientRequest(resTwoAtt.patient.id, 'WATER', 'Smart glove gesture call');
@@ -1883,6 +1885,19 @@ async function runMasterTestSuite() {
   await syncApiHandler({ method: 'POST', body: { mutation: { type: 'UPDATE_PATIENT', payload: { id: 'pat-ramesh' } } } }, syncApi.response);
   assert(syncApi.result.statusCode === 503, 'Unconfigured cross-device sync endpoint returns service unavailable');
   assert(!JSON.stringify(syncApi.result.payload).includes('pat-ramesh'), 'Sync endpoint does not echo clinical identifiers');
+
+  const priorNodeEnv = process.env.NODE_ENV;
+  const priorDemoRelay = process.env.HEALTHCONNECT_DEMO_MODE;
+  process.env.NODE_ENV = 'production';
+  process.env.HEALTHCONNECT_DEMO_MODE = 'true';
+  const productionRelay = createMockApiResponse();
+  await syncApiHandler({ method: 'POST', headers: {}, body: { snapshot: { patients: [{ id: 'patient-secret' }] } } }, productionRelay.response);
+  assert(productionRelay.result.statusCode === 503, 'Production in-memory relay stays disabled even when the demo flag is set');
+  assert(!JSON.stringify(productionRelay.result.payload).includes('patient-secret'), 'Production relay rejection does not echo submitted clinical records');
+  if (priorNodeEnv === undefined) delete process.env.NODE_ENV;
+  else process.env.NODE_ENV = priorNodeEnv;
+  if (priorDemoRelay === undefined) delete process.env.HEALTHCONNECT_DEMO_MODE;
+  else process.env.HEALTHCONNECT_DEMO_MODE = priorDemoRelay;
 
   const hardwareApi = createMockApiResponse();
   await patientEventsApiHandler({ method: 'POST', body: { patientId: 'pat-ramesh', eventType: 'VITAL' } }, hardwareApi.response);

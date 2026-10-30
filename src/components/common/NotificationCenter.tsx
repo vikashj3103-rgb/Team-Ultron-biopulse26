@@ -66,6 +66,11 @@ export const NotificationCenter: React.FC<NotificationCenterProps> = ({ isOpen, 
       onClick={onClose}
     >
       <div
+        style={{
+          paddingTop: 'env(safe-area-inset-top, 0px)',
+          paddingBottom: 'env(safe-area-inset-bottom, 0px)',
+          paddingRight: 'env(safe-area-inset-right, 0px)',
+        }}
         className="w-full max-w-md bg-white h-full shadow-2xl flex flex-col border-l border-slate-200"
         onClick={(e) => e.stopPropagation()}
         role="dialog"

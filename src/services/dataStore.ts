@@ -16,6 +16,16 @@ import { telemetryDiagnosticService } from './telemetryDiagnosticService';
 
 const STORAGE_KEY = 'careconnect_datastore_v4';
 
+function removeAttenderCredentials(attenders: Attender[]): Attender[] {
+  return attenders.map((attender) => {
+    const safeAttender = { ...attender };
+    delete safeAttender.temporaryPassword;
+    delete safeAttender.demoPassword;
+    delete safeAttender.mustChangePassword;
+    return safeAttender;
+  });
+}
+
 // 1. Initial Synthetic Doctors
 const INITIAL_DOCTORS: Doctor[] = [
   {
@@ -91,8 +101,6 @@ const INITIAL_ATTENDERS: Attender[] = [
     relation: 'Grandson',
     assignedPatientId: 'pat-ramesh',
     isOnline: true,
-    temporaryPassword: 'Demo@123',
-    mustChangePassword: false,
     status: 'active',
   },
   {
@@ -104,8 +112,6 @@ const INITIAL_ATTENDERS: Attender[] = [
     relation: 'Daughter',
     assignedPatientId: 'pat-anitha',
     isOnline: true,
-    temporaryPassword: 'Demo@123',
-    mustChangePassword: false,
     status: 'active',
   },
   {
@@ -117,8 +123,6 @@ const INITIAL_ATTENDERS: Attender[] = [
     relation: 'Brother',
     assignedPatientId: 'pat-karthik',
     isOnline: true,
-    temporaryPassword: 'Demo@123',
-    mustChangePassword: false,
     status: 'active',
   },
 ];
@@ -1294,7 +1298,7 @@ class DataStore {
     return {
       patients: this.patients,
       doctors: this.doctors,
-      attenders: this.attenders,
+      attenders: removeAttenderCredentials(this.attenders),
       requests: this.requests,
       alerts: this.alerts,
       medications: this.medications,
@@ -1337,7 +1341,7 @@ class DataStore {
     }
     this.patients = snapshot.patients || this.patients;
     this.doctors = snapshot.doctors || this.doctors;
-    this.attenders = snapshot.attenders || this.attenders;
+    this.attenders = snapshot.attenders ? removeAttenderCredentials(snapshot.attenders) : this.attenders;
     this.requests = snapshot.requests || this.requests;
     this.alerts = snapshot.alerts || this.alerts;
     this.medications = snapshot.medications || this.medications;
@@ -1368,7 +1372,7 @@ class DataStore {
         const parsed = JSON.parse(data);
         this.patients = parsed.patients || this.patients;
         this.doctors = parsed.doctors || this.doctors;
-        this.attenders = parsed.attenders || this.attenders;
+        this.attenders = parsed.attenders ? removeAttenderCredentials(parsed.attenders) : this.attenders;
         this.requests = parsed.requests || this.requests;
         this.alerts = parsed.alerts || this.alerts;
         this.medications = parsed.medications || this.medications;
@@ -1390,6 +1394,7 @@ class DataStore {
         this.dischargePlans = parsed.dischargePlans || this.dischargePlans;
         this.soundEnabled = parsed.soundEnabled !== undefined ? parsed.soundEnabled : this.soundEnabled;
         this.lastSyncTimestamp = Date.now();
+        this.saveToStorage();
       }
     } catch {
       // ignore
@@ -1416,7 +1421,7 @@ class DataStore {
         const parsed = JSON.parse(data);
         this.patients = parsed.patients || INITIAL_PATIENTS;
         this.doctors = parsed.doctors || INITIAL_DOCTORS;
-        this.attenders = parsed.attenders || INITIAL_ATTENDERS;
+        this.attenders = parsed.attenders ? removeAttenderCredentials(parsed.attenders) : INITIAL_ATTENDERS;
         this.requests = parsed.requests || INITIAL_REQUESTS;
         this.alerts = parsed.alerts || INITIAL_ALERTS;
         this.medications = parsed.medications || INITIAL_MEDICATIONS;
@@ -1438,6 +1443,8 @@ class DataStore {
         this.dischargePlans = parsed.dischargePlans || INITIAL_DISCHARGE_PLANS;
         this.soundEnabled = parsed.soundEnabled !== undefined ? parsed.soundEnabled : true;
         this.lastSyncTimestamp = Date.now();
+        // Rewrite legacy snapshots so previously persisted demo passwords are removed.
+        this.saveToStorage();
         return;
       }
     } catch {
@@ -1453,7 +1460,7 @@ class DataStore {
         JSON.stringify({
           patients: this.patients,
           doctors: this.doctors,
-          attenders: this.attenders,
+          attenders: removeAttenderCredentials(this.attenders),
           requests: this.requests,
           alerts: this.alerts,
           medications: this.medications,
@@ -2791,8 +2798,8 @@ class DataStore {
       return { valid: false, error: 'Access revoked. Associated patient has been discharged.' };
     }
 
-    const expected = attender.passwordHash || attender.temporaryPassword;
-    if (expected && expected !== passwordAttempt) {
+    const expected = attender.demoPassword || attender.temporaryPassword;
+    if (!expected || expected !== passwordAttempt) {
       return { valid: false, error: 'Incorrect password.' };
     }
 
@@ -2803,7 +2810,7 @@ class DataStore {
     const attender = this.attenders.find((a) => a.id === attenderId || a.userId === attenderId);
     if (!attender) return false;
 
-    attender.passwordHash = newPassword;
+    attender.demoPassword = newPassword;
     attender.temporaryPassword = undefined; // clear temporary password after first change
     attender.mustChangePassword = false;
     this.notify();
@@ -4477,7 +4484,7 @@ class DataStore {
     return JSON.stringify({
       patients: this.patients,
       doctors: this.doctors,
-      attenders: this.attenders,
+      attenders: removeAttenderCredentials(this.attenders),
       requests: this.requests,
       alerts: this.alerts,
       medications: this.medications,
@@ -4506,7 +4513,7 @@ class DataStore {
       const parsed = JSON.parse(snapshot);
       if (parsed.patients) this.patients = parsed.patients;
       if (parsed.doctors) this.doctors = parsed.doctors;
-      if (parsed.attenders) this.attenders = parsed.attenders;
+      if (parsed.attenders) this.attenders = removeAttenderCredentials(parsed.attenders);
       if (parsed.requests) this.requests = parsed.requests;
       if (parsed.alerts) this.alerts = parsed.alerts;
       if (parsed.medications) this.medications = parsed.medications;

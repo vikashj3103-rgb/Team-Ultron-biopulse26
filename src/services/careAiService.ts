@@ -1,3 +1,4 @@
+import { supabase } from '../lib/supabase';
 /**
  * HealthConnect Multilingual Context-Aware CareAI Intent & Routing Service
  * 
@@ -13,7 +14,17 @@ import { hospitalMapService } from './hospitalMapService';
 import { dataStore } from './dataStore';
 import { formatTemperatureF } from '../utils/temperature';
 import { getLanguage, t } from '../i18n';
-import { clinicalAiService, ClinicalSummaryResult, sanitizePatientData } from './aiProvider';
+import { clinicalAiService, ClinicalSummaryResult, sanitizePatientData, resolveApiUrl } from './aiProvider';
+
+function getEnvVar(key: string): string | undefined {
+  if (typeof import.meta !== 'undefined' && import.meta.env) {
+    const val = (import.meta.env as Record<string, string | undefined>)[key];
+    if (val !== undefined && val !== '') return val;
+  }
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const proc = typeof globalThis !== 'undefined' ? (globalThis as any).process : undefined;
+  return proc?.env?.[key];
+}
 
 export type CareAiIntentType =
   | 'CURRENT_LOCATION'
@@ -88,6 +99,8 @@ export interface CareAiResponse {
   destId?: string;
   directions?: string[];
   cardType?: 'NONE' | 'ROUTE' | 'VITALS' | 'MEDICATIONS' | 'UNKNOWN' | 'PRESCRIPTION_RESTRICTED' | 'CLINICAL_SUMMARY' | 'SAFETY_WARNING';
+  isOfflineFallback?: boolean;
+  fallbackReason?: string;
   clinicalSummaryData?: ClinicalSummaryResult;
   actions?: CareAiAction[];
   routeData?: {
@@ -892,7 +905,7 @@ class CareAiService {
     if (
       q.includes('emergency') ||
       q.includes('casualty') ||
-      q.includes('er') ||
+      /\b(er|e\.r\.)\b/i.test(q) ||
       q.includes('trauma') ||
       q.includes('அவசர சிகிச்சை') ||
       q.includes('आपातकालीन') ||
@@ -935,8 +948,8 @@ class CareAiService {
       q.includes('canteen') ||
       q.includes('cafeteria') ||
       q.includes('coffee') ||
-      q.includes('eat') ||
-      q.includes('tea') ||
+      /\b(eat|eating)\b/i.test(q) ||
+      /\b(tea|chai)\b/i.test(q) ||
       q.includes('உணவகம்') ||
       q.includes('சாப்பாடு') ||
       q.includes('कैंटीन') ||
@@ -2248,7 +2261,133 @@ class CareAiService {
       cardType: 'UNKNOWN',
     };
   }
+
+  /**
+   * Queries CareConnect Server AI Gateway (/api/clinical-ai) for unknown/open-ended queries
+   */
+  private async queryOmniRoute(
+    rawQuery: string,
+    patient?: Patient,
+    language?: string,
+    roleOverride?: UserRole,
+    doctorIdOverride?: string
+  ): Promise<string | null> {
+    const controller = new AbortController();
+    const timeoutTimer = setTimeout(() => controller.abort(), 15000);
+
+    try {
+      const sanitized = patient ? sanitizePatientData(patient) : undefined;
+      let token = '';
+      if (typeof window !== 'undefined') {
+        try {
+          const { data } = await supabase.auth.getSession();
+          token = data?.session?.access_token || '';
+        } catch {
+          // ignore
+        }
+      }
+
+      const effectiveRole = roleOverride || 'attender';
+      const headers: Record<string, string> = {
+        'Content-Type': 'application/json',
+      };
+      if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+      }
+      headers['X-CareConnect-Role'] = effectiveRole;
+      if (sanitized?.id) headers['X-CareConnect-Patient-Id'] = sanitized.id;
+      if ((patient as any)?.hospitalId) headers['X-CareConnect-Hospital-Id'] = (patient as any).hospitalId;
+      if (effectiveRole === 'doctor' && (doctorIdOverride || patient?.assignedDoctorId)) {
+        headers['X-CareConnect-Assigned-Doctor'] = doctorIdOverride || patient?.assignedDoctorId || '';
+      }
+      if (effectiveRole === 'attender' && patient?.assignedAttenderId) {
+        headers['X-CareConnect-Assigned-Attender'] = patient.assignedAttenderId;
+      }
+
+      const url = resolveApiUrl('/api/clinical-ai');
+
+
+      const response = await fetch(url, {
+        method: 'POST',
+        headers,
+        body: JSON.stringify({
+          action: 'CAREGIVER_ASSISTANT',
+          patient: sanitized,
+          rawQuery,
+          language: language || 'en',
+        }),
+        signal: controller.signal,
+      });
+
+      clearTimeout(timeoutTimer);
+
+      if (!response.ok) {
+        console.warn(`[CareAI Gateway] HTTP ${response.status} — using fallback response`);
+        return null;
+      }
+
+      const json = (await response.json()) as any;
+      if (json.success && typeof json.result === 'string' && json.result.trim()) {
+        return json.result.trim();
+      }
+      return null;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (err: any) {
+      clearTimeout(timeoutTimer);
+      if (err?.name === 'AbortError') {
+        console.warn('[CareAI Gateway] Request timed out — using fallback');
+      } else {
+        console.warn('[CareAI Gateway] Network or fetch error — using fallback');
+      }
+      return null;
+    }
+  }
+
+  /**
+   * Asynchronous context-aware query processor that resolves known deterministic intents instantly
+   * and routes open-ended queries through OmniRoute with reliable fallback.
+   */
+  public async processQueryAsync(
+    rawQuery: string,
+    patient?: Patient,
+    langOverride?: string,
+    roleOverride?: UserRole,
+    doctorIdOverride?: string
+  ): Promise<CareAiResponse> {
+    const syncResult = this.processQuery(rawQuery, patient, langOverride, roleOverride, doctorIdOverride);
+    if (syncResult.cardType !== 'UNKNOWN') {
+      return syncResult;
+    }
+
+    // Asynchronously query server AI gateway (/api/clinical-ai) for open-ended queries
+
+    try {
+      const aiReply = await this.queryOmniRoute(
+        rawQuery,
+        patient,
+        langOverride || getLanguage(),
+        roleOverride,
+        doctorIdOverride
+      );
+      if (aiReply) {
+        return {
+          ...syncResult,
+          reply: aiReply,
+          isOfflineFallback: false,
+        };
+      }
+    } catch {
+      // Clean fallback to deterministic response
+    }
+
+    return {
+      ...syncResult,
+      isOfflineFallback: true,
+      fallbackReason: 'AI service unreachable — using local deterministic clinical intelligence',
+    };
+  }
 }
+
 
 export const careAiService = new CareAiService();
 
@@ -2261,4 +2400,14 @@ export const processCareAiQuery = (
   doctorIdOverride?: string
 ): CareAiResponse => {
   return careAiService.processQuery(rawQuery, patient, langOverride, roleOverride, doctorIdOverride);
+};
+
+export const processCareAiQueryAsync = async (
+  rawQuery: string,
+  patient?: Patient,
+  langOverride?: string,
+  roleOverride?: UserRole,
+  doctorIdOverride?: string
+): Promise<CareAiResponse> => {
+  return careAiService.processQueryAsync(rawQuery, patient, langOverride, roleOverride, doctorIdOverride);
 };

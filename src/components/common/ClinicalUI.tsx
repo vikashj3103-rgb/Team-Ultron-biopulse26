@@ -17,7 +17,7 @@ export interface PrimaryNavItem {
 export const MobilePrimaryNav: React.FC<{ items: PrimaryNavItem[]; label: string; hideAt?: 'lg' | 'xl' }> = ({ items, label, hideAt = 'xl' }) => (
   <nav
     aria-label={label}
-    style={{ paddingBottom: 'calc(10px + env(safe-area-inset-bottom, 0px))' }}
+    style={{ paddingBottom: 'calc(10px + env(safe-area-inset-bottom, 0px))', paddingLeft: 'max(6px, env(safe-area-inset-left, 0px))', paddingRight: 'max(6px, env(safe-area-inset-right, 0px))' }}
     className={`fixed inset-x-0 bottom-0 z-40 border-t border-slate-200/90 bg-white/95 px-1.5 pt-1 shadow-[0_-4px_20px_rgba(18,48,74,0.08)] backdrop-blur-md ${hideAt === 'lg' ? 'lg:hidden' : 'xl:hidden'}`}
   >
     <div className="mx-auto grid max-w-screen-md gap-1" style={{ gridTemplateColumns: `repeat(${items.length}, minmax(0, 1fr))` }}>

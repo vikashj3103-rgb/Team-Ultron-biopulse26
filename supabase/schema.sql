@@ -1,6 +1,8 @@
 -- ==============================================================================
--- CareConnect Database Schema & Row Level Security (RLS)
--- Hackathon Prototype & Production Ready
+-- LEGACY PROTOTYPE BASELINE ONLY.
+-- This schema contains the original single-hospital policies and is not a secure
+-- deployment by itself. Apply the timestamped tenant identity migration after it;
+-- that migration replaces the prototype policies with membership-derived RLS.
 -- ==============================================================================
 
 -- Enable UUID extension

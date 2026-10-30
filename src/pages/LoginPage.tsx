@@ -9,11 +9,22 @@ import {
 } from 'lucide-react';
 import { LanguageSelector } from '../components/common/LanguageSelector';
 import { useLanguage } from '../i18n';
+import { DEMO_MODE_ENABLED } from '../services/runtimeMode';
 
 export const LoginPage: React.FC = () => {
-  const { loginAsDemo, loginWithCredentials } = useAuth();
-  const { t } = useLanguage();
   const navigate = useNavigate();
+
+  const { loginAsDemo, loginWithCredentials, isAuthenticated, role: currentRole } = useAuth();
+
+  React.useEffect(() => {
+    if (isAuthenticated && currentRole) {
+      if (currentRole === 'doctor') navigate('/doctor', { replace: true });
+      else if (currentRole === 'attender') navigate('/attender', { replace: true });
+      else if (currentRole === 'admin') navigate('/admin', { replace: true });
+    }
+  }, [isAuthenticated, currentRole, navigate]);
+  const { t } = useLanguage();
+
   const [activeTab, setActiveTab] = useState<'credentials' | 'demo'>('credentials');
   const [userId, setUserId] = useState('');
   const [password, setPassword] = useState('');
@@ -25,7 +36,7 @@ export const LoginPage: React.FC = () => {
   const handleCredentialsSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!userId.trim()) {
-      setError(t('login.enterUserIdError') || 'Please enter your assigned clinical user ID or email.');
+      setError(t('login.enterUserIdError') || 'Please enter the email address registered to your hospital account.');
       return;
     }
     if (!password) {
@@ -35,7 +46,14 @@ export const LoginPage: React.FC = () => {
 
     setError(null);
     setIsLoading(true);
-    const res = await loginWithCredentials(userId.trim(), password);
+    let res: Awaited<ReturnType<typeof loginWithCredentials>>;
+    try {
+      res = await loginWithCredentials(userId.trim(), password);
+    } catch {
+      setIsLoading(false);
+      setError(t('login.authenticationError') || 'The sign-in service is unavailable. Please try again.');
+      return;
+    }
     setIsLoading(false);
 
     if (res.success) {
@@ -52,16 +70,32 @@ export const LoginPage: React.FC = () => {
   };
 
   const handleDemoSelect = (selectedRole: UserRole) => {
-    loginAsDemo(selectedRole);
+    if (!DEMO_MODE_ENABLED || !loginAsDemo(selectedRole)) return;
+    setTimeout(() => {
+      if (selectedRole === 'doctor') navigate('/doctor');
+      else if (selectedRole === 'attender') navigate('/attender');
+      else navigate('/admin');
+    }, 50);
     if (selectedRole === 'doctor') navigate('/doctor');
     else if (selectedRole === 'attender') navigate('/attender');
     else navigate('/admin');
   };
 
   return (
-    <div className="min-h-screen bg-[#F8FAFC] text-[#0F172A] flex flex-col justify-center py-6 px-4 sm:px-6 lg:px-8 relative overflow-x-hidden">
+    <div style={{
+        paddingTop: 'calc(24px + env(safe-area-inset-top, 0px))',
+        paddingBottom: 'calc(24px + env(safe-area-inset-bottom, 0px))',
+        paddingLeft: 'calc(16px + env(safe-area-inset-left, 0px))',
+        paddingRight: 'calc(16px + env(safe-area-inset-right, 0px))',
+      }}
+      className="min-h-screen bg-[#F8FAFC] text-[#0F172A] flex flex-col justify-center relative overflow-x-hidden">
       {/* Global Language Selector (Portal-rendered) */}
-      <div className="absolute top-4 right-4 sm:top-6 sm:right-8 z-20">
+      <div
+        style={{
+          top: 'calc(16px + env(safe-area-inset-top, 0px))',
+          right: 'calc(16px + env(safe-area-inset-right, 0px))',
+        }}
+        className="absolute z-20 sm:top-6 sm:right-8">
         <LanguageSelector />
       </div>
 
@@ -177,7 +211,7 @@ export const LoginPage: React.FC = () => {
                 >
                   {t('login.tabCredentials')}
                 </button>
-                <button
+                {DEMO_MODE_ENABLED && <button
                   type="button"
                   data-testid="tab-demo-access"
                   onClick={() => {
@@ -193,7 +227,7 @@ export const LoginPage: React.FC = () => {
                 >
                   <ShieldCheck className="w-3.5 h-3.5 text-[#2563EB]" />
                   <span>{t('login.tabRoles')}</span>
-                </button>
+                </button>}
               </div>
 
               {/* Error Alert Banner */}

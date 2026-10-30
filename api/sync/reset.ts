@@ -1,7 +1,9 @@
 import { syncStore } from '../_state.js';
+import { denyIfDemoRelayDisabled } from '../_security.js';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export default async function handler(req: any, res: any) {
+  if (denyIfDemoRelayDisabled(res)) return;
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
